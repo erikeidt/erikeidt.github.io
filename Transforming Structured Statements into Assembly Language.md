@@ -1,6 +1,8 @@
+# Transforming Structured Statements into Assembly Language
+
 ### Conditional Expressions in the If-Goto Style of Assembly Language
 
-[[_TOC_]]
+[[TOC]]
 
 ## Introduction &#8212; Structured Statements vs. If-Goto
 
