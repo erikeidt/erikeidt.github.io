@@ -283,7 +283,7 @@ because they don't allow a first-operand immediate/constant, but they can do `b 
 
 ## Short Circuit Expression Transformation: &&, || 
 
-Beyond this, there are considerations for transcribing && and || constructs (short-cicuit `AND` and short-circut `OR`) into assembly.
+Beyond this, there are considerations for transcribing `&&` and `||` constructs (short-cicuit `AND` and short-circut `OR`) into assembly.
 
 This section shows how to reduce short circut boolean operators into more yet simpler if-goto statements.&nbsp; An upcoming section will show how to apply negation to these conditions, as negation is often required for if and loop transformation into if-goto style.
 
