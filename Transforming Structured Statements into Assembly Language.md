@@ -418,3 +418,25 @@ Now we'll remove negation by swapping the relational operator around:
     continueThis:
 
 And we'll apply branch to branch optimization (a branch to an unconditional branch can be modified to go directly to the final target), changing the target of the first goto from `nextPart` to `exitTheLoop`.&nbsp; (This also allows removing the `nextPart` label as it is no longer used.)
+
+        if ( i < 100 && a[i] != 0 ) goto continueThis;
+        goto exitTheLoop;
+    continueThis:
+
+Next, we'll apply short-circut evaluation of `&&` in if-goto (which also requires introducing another label, `nextPart:`).
+
+        if ( ! (i < 100) ) goto nextPart;
+        if ( a[i] != 0 ) goto continueThis;
+    nextPart:
+        goto exitTheLoop;
+    continueThis:
+
+Now we'll remove negation by swapping the relational operator around:
+
+        if ( i >= 100) ) goto nextPart;
+        if ( a[i] != 0 ) goto continueThis;
+    nextPart:
+        goto exitTheLoop;
+    continueThis:
+
+And we'll apply branch to branch optimization (a branch to an unconditional branch can be modified to go directly to the final target), changing the target of the first goto from `nextPart` to `exitTheLoop`.&nbsp; (This also allows removing the `nextPart` label as it is no longer used.)
