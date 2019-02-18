@@ -322,8 +322,8 @@ Conditions of the form `a && b` and `a || b` may require negation.&nbsp; Their n
 
 | Operation | Negated | Negation Distributed |
 |:-:|:-:|:-:|
-| a `&&` b | `!` (a `&&` b) | `!` a `||` `!` b |
-| a `||` b | `!` (a `||` b) | `!` a `&&` `!` b |
+| `a && b` | `! (a && b)` | `! a \|\| ! b` |
+| `a \|\| b` | `! (a \|\| b)` | `! a && ! b` |
 
 One advantage to this distribution is that if either `a` or `b` involve relational operators, further short-cicut operators, or negation, then further simplifications and optimizations are enabled.
 
