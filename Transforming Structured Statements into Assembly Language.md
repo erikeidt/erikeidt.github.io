@@ -10,9 +10,9 @@ High level languages offer structured statements: constructs such as if-then-els
 
 In general, assembly language does not offer structured statements.&nbsp; Instead it offers three constructs:
 
-1) statement labels &#8212; these are used to uniquely identify places in code 
-2) a "goto label" statement &#8212; also called an unconditional branch, and, 
-3) an "if condition then goto label" statement &#8212; also called a conditional branch.
+1. statement labels &#8212; these are used to uniquely identify places in code 
+2. a "goto label" statement &#8212; also called an unconditional branch, and, 
+3. an "if condition then goto label" statement &#8212; also called a conditional branch.
 
 We can call using just these for conditional logic as an "if-goto" style of programming.&nbsp; All structured statement constructs can be translated into the if-goto style, and, whether this is done explicitly or just as a mental exercise, this transformation is a first step in accomplishing (the equivalent of) structured statements in assembly language.
 
