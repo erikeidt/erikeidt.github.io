@@ -439,3 +439,5 @@ So, this represents another way to reach the same code sequence.
 ---
 
 This article is Copyright (c) 2018-2019, Erik L Eidt.
+
+If you're interested in learning more, feel free to [![Contact me on Codementor](https://cdn.codementor.io/badges/contact_me_github.svg)](https://www.codementor.io/erikeidt), for informal chatting, or for live 1:1 sessions for help with your assembly language projects!
