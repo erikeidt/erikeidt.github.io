@@ -9,12 +9,12 @@ I developed this algorithm without formal training in computer science &#8212; o
 However, I believe that my approach still has merits worth discussing, though I discuss now in the context of what I later realized are
 previously existing approaches.
 
-The classic Shunting Yard algorithm is incomplete for expressions with additional operators.&nbsp; 
- It does not allow for parsing subtraction together negation and negative numbers.&nbsp;
+The classic Shunting Yard algorithm is incomplete for expressions with certain operators found in the C style of languages.&nbsp; 
+ It does not allow for parsing subtraction together with negation and negative numbers.&nbsp;
  It does not provide for function calls and array indexing.&nbsp;
- Further, the classic Shunting Yard algorithm does not properly detect a number of syntax errors.
+ Further, the classic Shunting Yard algorithm does not properly detect a number of syntax errors, such as repeated operands.
  
-In some sense, these additional operators (and error detection) require two shunting yard algorithms, stitched together.&nbsp;
+In some sense, dealing with these requires two shunting yard algorithms, stitched together.&nbsp;
  My approach to parsing all these operators is a two-state, two-stack model.&nbsp;
  The two states are the Unary State and the Binary State, and, the two stacks are Operator Stack and the Operand Stack.
 
@@ -24,16 +24,15 @@ Using these four elements, we can precisely identify the difference between pare
   whereas the function call parenthesis occurs in the binary state.&nbsp;
  Similarly, subtraction occurs in the binary state, but negation occurs in the unary state.
  
-Also noteworthy, this approach to parsing complex expressions invovles no recursion; 
- each token is somehow dealt with and the algorithm moves on directly.&nbsp; 
+Also noteworthy, this approach to parsing complex expressions involves no recursion; 
+ each token is directly dealt with and the algorithm moves on to process the next token.&nbsp; 
  By contrast, recursive algorithms, and even those based on flattened recursion, generally look at each token 
   numerous times as they analyze its applicability to each level of precedence.&nbsp;
  Thus, I have found this approch to have considerable performance especially in languages that have 
   a large number of levels of precedence, like C.
   
 The algorithm starts in the Unary State, with an empty Operator Stack and an empty Operand Stack.&nbsp; 
- When the algorithm completes the result of the expression parse is the (only) operand on the Operand Stack.&nbsp;
- Leftover operators and leftover operands each indicate specific syntax errors (such as missing parenthesis, missing operator). 
+ When the algorithm completes the result of the expression parse is the (only) operand on the Operand Stack.
 
 The gist of the algorithm is that in each state certain things are expected (and differentiated).&nbsp; 
  Upon receipt of tokens, they are handled as per the state, and then the state either remains or switches to the other,
