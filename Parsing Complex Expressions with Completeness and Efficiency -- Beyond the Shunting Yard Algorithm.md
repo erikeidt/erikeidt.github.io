@@ -38,12 +38,16 @@ The gist of the algorithm is that in each state certain things are expected (and
  Upon receipt of tokens, they are handled as per the state, and then the state either remains or switches to the other,
   depending on the operator.
 
-For example, receiving an open parenthesis in the (initial and) unary state, means we have an ordinary grouping
+For example, seeing an open parenthesis in the (initial and) unary state, means we have an ordinary grouping
  parenthesis &#8212; and we stack it and remain in the unary state, so as to accept more open parenthesis, or a unary operator,
- like minus sign, or an identifier or constant.
+ like minus sign, or an identifier or constant.&nbsp; After accepting an open parenthesis or unary operator we stay in the unary state, whereas after accepting an operand like a variable or constant, we move to the binary state.
 
-Receiving parenthesis in the Binary State means the beginning of a function call rather than grouping.&nbsp;
- We stack the function invocation and transition to the Unary State.
- 
-
+Seeing parenthesis in the Binary State means the beginning of a function call rather than grouping.&nbsp;
+ (We stack the function invocation and transition to the Unary State.)&nbsp; 
+  Receiving a minus sign in the Binary State means subtraction.&nbsp; 
+ Ultimately we stack the subtraction operator, but first, we reduce higher precedence operators on the operator stack; 
+ afterwards we return to the unary state (to accept another operand).&nbsp; 
+ Receiving close parenthesis in the Binary State means finishing the matching operator that is on the operator stack
+ (be it grouping parenthesis or function call), 
+ and remaining in the Binary State (to accept another close parenthesis, for example).
 
