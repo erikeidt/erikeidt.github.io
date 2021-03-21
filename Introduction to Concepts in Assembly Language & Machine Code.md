@@ -44,33 +44,17 @@ Rich expressions require thought to translate to assembly language.&nbsp; One st
 
 Function calls are one of the most complex subjects for assembly language programming, especially on register rich machines.&nbsp; As you recall from above, the CPU registers need to be constantly repurposed.&nbsp; Imagine sharing 8 (on some machines) or 32 (on others) among thousands of functions.
 
-In order to facilitate this, by software convention, we subdivide the physical resources &#8212; the CPU registers &#8212; into partition sets.&nbsp; One such set has "call preserved" vs. "call clobbered" registers.&nbsp; The former set is designed for a usage scenario that involves variables that are live across a function call, whereas the latter involves variables that are not.
+In order to facilitate this, by software convention, we subdivide the physical resources &#8212; the CPU registers &#8212; into partition sets.&nbsp; One such set has "call preserved" vs. "call clobbered" (aka "scratch") registers.&nbsp; The former set is designed for a usage scenario that involves variables that are live across a function call, whereas the latter involves variables that are not.
 
-In order to understand which registers to use (or even when to use memory) we need an analysis of the pseudo code being translated.
+In order to understand which registers to use (or even when to use memory) we need an analysis of the pseudo code being translated, in terms of the concept of live-ness.&nbsp; Liveness is the property that refers to the range or stretch of code across which a variable is live.&nbsp; This range begins when a variable is set or update, and ends after the last usage of the variable.&nbsp; Variables used in loops need to take the loop into account.&nbsp; For example the iteration control variable (e.g. i in a for i = loop), is tested and incremented in the loop, and thus is live for the duration of the loop.
 
----
+Regarding liveness: when two variables have overlapping liveness, they cannot both occupy the same physical resource (e.g. CPU register).&nbsp; When there is function calling, some registers are necessarily repurposed (parameter registers, return registers), while others are potentially repurposed (scratch registers).&nbsp; Function calls can be thought of as a single instruction that potentially touches all the scratch registers, and therefore wipes them out.&nbsp; We should not leave our live variables in these registers across a call.
 
- * Temptations to resist
-
-I see many tempted to:
-
-1. not use working pseudo<br/>
-  * thinking the problem is simple and doesn't need it (even for simple things we often don't have sufficient clarity to take that to assembly language when we're first leaning assembly), 
-  * thinking that it will slow you down (it won't, it will speed you up), 
-
-2. Making algorithmic changes when translating into assembly language, such as 
-  * converting an algorithm from arrays and indexing variables to using pointers variables instead
-  * converting a while loop into a do while loop
-
-Do these transformations in C and make sure they work, instead of during translation to assembly
-
----
-
-* I recommend using logical transformations to take your pseudo code into assembly language.&nbsp; Small steps repeated as needed.
-
-* Be proficient at single step debugging &#8212; learn it in your other languages first, and do it in assembly language.
-
-* Don't write a ton of code before assembling it &#8212; write small sections, assemble, run, test & debug them.
+See this article: https://stackoverflow.com/a/64846929/471129
 
 
+In assembly language there are two concepts hidden from C programmers.
 
+* One is the return address
+
+* Another is the stack pointer.
