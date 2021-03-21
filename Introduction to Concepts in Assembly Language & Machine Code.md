@@ -36,10 +36,6 @@ Rich expressions require thought to translate to assembly language.&nbsp; One st
 
 ---
 
-* Use pseudo code, I strongly recommend C, and testing the C to make sure it actually works.&nbsp; It is no fun debugging a design flaw in assembly language, and, a small change in the pseudo code (to fix a bug) can result in a large change to assembly code.&nbsp; It is so much easier to find & fix design flaws in C than in assembly, and if you make changes to the C code after doing the assembly translation, it can be hard to get the old assembly to reflect those changes.
-
----
-
  * Function calls, stack frames, parameter passing, return values, hidden parameters, global data structures
 
 Function calls are one of the most complex subjects for assembly language programming, especially on register rich machines.&nbsp; As you recall from above, the CPU registers need to be constantly repurposed.&nbsp; Imagine sharing 8 (on some machines) or 32 (on others) among thousands of functions.

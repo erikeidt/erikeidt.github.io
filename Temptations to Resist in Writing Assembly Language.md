@@ -1,5 +1,7 @@
  * Temptations to resist
 
+* Use pseudo code, I strongly recommend C, and testing the C to make sure it actually works.&nbsp; It is no fun debugging a design flaw in assembly language, and, a small change in the pseudo code (to fix a bug) can result in a large change to assembly code.&nbsp; It is so much easier to find & fix design flaws in C than in assembly, and if you make changes to the C code after doing the assembly translation, it can be hard to get the old assembly to reflect those changes.
+
 I see many tempted to:
 
 1. not use working pseudo<br/>
