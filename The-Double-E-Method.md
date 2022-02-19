@@ -8,7 +8,7 @@ Infix expressions are the kind found in most programming languages, like C.
 The Double-E method uses two-states and two-stacks.
 
 The states are simple: unary and binary.&nbsp; 
-To oversimplify only slightly, the unary state says we're looking for a unary operator or an operand, and the binary state says we're looking for a binary operator or the end of an expression.
+To oversimplify slightly, the unary state says we're looking for a unary operator or an operand, and the binary state says we're looking for a binary operator or the end of an expression.
 
 One of the two stacks is for operators and the other for operands.&nbsp; 
 These stacks are intermediate storage used to hold operators and operands before their proper precedence and binding in context is known.&nbsp; 
@@ -32,7 +32,7 @@ This method is:
 	  * depending on next input, simply stay in current state or switch to the other
 	  * current state tells us whether operator is unary or binary
 	* Two simple stacks
-	  * the stacks used to manage precedence and bind partial expressions to operators
+	  * the stacks are used to manage precedence and bind partial expressions to operators
 
 * Complete
 	* Handles unary negation, indirection, subtraction, multiplication, prefix, postfix, ternary operators.
@@ -41,17 +41,17 @@ This method is:
 	* Can be expanded to handle lambdas, casts, other.
 
 * Efficient
-	* Simple loops for the states, no recursion, and no backtracking.
+	* Simple loops for the states, no recursion, no backtracking.
 	* Each *token* is examined only once, and immediately converted to an operator or operand
 	  * and placed on one of the two stacks.
-	* Can work on directly on characters; does not need a formal lexer.
+	* Can work directly on characters; does not need a formal lexer.
 
 * Composable 
 	* Composes with recursive descent statement parser
 
 * Implementation
 	* [Draconum Double-E Expression Parser](https://github.com/erikeidt/Draconum/tree/master/src/3.%20Expression%20Parser)
-	  * [ExpressionParsre.cs](https://github.com/erikeidt/Draconum/blob/master/src/3.%20Expression%20Parser/Expression%20Parser%20Library/ExpressionParser.cs)
+	  * [ExpressionParser.cs](https://github.com/erikeidt/Draconum/blob/master/src/3.%20Expression%20Parser/Expression%20Parser%20Library/ExpressionParser.cs)
 
 ## Notes
 
@@ -67,7 +67,7 @@ In the unary state, we're expecting either a unary operator or an operand or gro
 
 In the binary state, we are expecting binary operators, or close paranthesis (or open paren).&nbsp; If we:
 
-* see a operator token (e.g. - or \*) in the binary state, and we know we have a binary operator (e.g. subtraction or multiplication).
+* see an operator token (e.g. - or \*) in the binary state, and we know we have a binary operator (e.g. subtraction or multiplication).
 
   The idea now is to reduce the operator stack as much as possible, then push the identified operator.&nbsp;
 Reduction is a matter of composing an AST for an expression on the stacks as long as the precedence of the 
@@ -89,10 +89,10 @@ That's the gist of it.
 # Example
 
 ```
- u   u   b   u   b   u   b	states
-  \ / \ / \ / \ / \ / \ / \     \ for current state, / for transitions
-   -   a   +   b   *   c   ;	input
-   1   2   3   4   5   6   7	action, given current state & input
+ u   u   b   u   b   u   b		States
+  \ / \ / \ / \ / \ / \ / \     	\ for current state ready for input, / for transitions to next state
+   -   a   +   b   *   c   ;		Sample input
+   1   2   3   4   5   6   7		Action (comment #), given current state & input
 
 initial state: unary
 operator stack: empty
