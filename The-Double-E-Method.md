@@ -61,9 +61,9 @@ In the unary state, we're expecting either a unary operator or an operand or gro
 
 * see an operator token (e.g. -, \*), then we know it is a unary operator (e.g. unary negation, indirection).&nbsp; Push the identified unary operator onto the operator stack.&nbsp; Stay in unary state.
 
-* see an operand in unary state (e.g. identifier, constant), so create AST for the operand and push it onto the operand stack.&nbsp; Switch to binary state.
+* see an operand (e.g. identifier, constant), so create AST for the operand and push it onto the operand stack.&nbsp; Switch to binary state.
 
-* see a paranthesis, then push operator for grouping paren onto the operator stack.&nbsp; Stay in unary state.
+* see an open paranthesis, then push operator for grouping paren onto the operator stack.&nbsp; Stay in unary state.
 
 In the binary state, we are expecting binary operators, or close paranthesis (or open paren).&nbsp; If we:
 
@@ -71,18 +71,18 @@ In the binary state, we are expecting binary operators, or close paranthesis (or
 
   The idea now is to reduce the operator stack as much as possible, then push the identified operator.&nbsp;
 Reduction is a matter of composing an AST for an expression on the stacks as long as the precedence of the 
-operator on top of the operator stack is greater (greater or equal for right associative) than the precedence of the identified operator.&nbsp;
-The reduction builds ASTs by popping operators (and as many operands as the operators take), 
-off the stack, and pushing the newly constructed partial tree back onto the stack.&nbsp; Switch back to unary state.
+operator on top of the operator stack is greater (greater or equal for right associative) than the precedence of the newly identified operator.&nbsp;
+The reduction builds ASTs by popping operators and as many operands as the operators take, 
+off the stacks, and pushing the newly constructed partial tree back onto the operand stack.&nbsp; Switch back to unary state.
 
 * see a close paranthesis, then reduce until matching open parenthesis.
 
-  Note: matching open paren may be a function invocation operator, if so build function invocation tree node.&nbsp; 
+  Note: the matching open paren may be a function invocation operator, if so build function invocation tree node.&nbsp; 
 If not, discard grouping paren.&nbsp; Stay in binary state.
 
-* see an open parenthesis in binary state, that is a function invocation.
+* see an open parenthesis, that is a function invocation.
 
-  Push function invocation operator onto the operator stack.&nbsp; Switch to unary state.
+  Reduce.&nbsp; Push function invocation operator onto the operator stack.&nbsp; Switch to unary state.
 
 That's the gist of it.  
 
@@ -121,14 +121,14 @@ input: plus sign token (+)
 
 state: unary
 operator stack: binary addition
-operand stack: AST for -u
+operand stack: AST for -a
 
 input: identifier b
 4: push operand identifier b onto the operand stack
 
 state: binary
 operator stack: binary addition
-operand stack: AST for -u, AST for b
+operand stack: AST for -a, AST for b
 
 input: asterisk token (*)
 5: reduce (nothing to do: binary multiplication has higher precedence than binary addition)
@@ -136,14 +136,14 @@ input: asterisk token (*)
 
 state: unary
 operator stack: binary addition, binary multiplication
-operand stack: AST for -u, AST for b
+operand stack: AST for -a, AST for b
 
 input: identifier c
 6: push operand c
 
 state: binary
 operator stack: binary addition, binary multiplication
-operand stack: AST for -u, AST for b, AST for c
+operand stack: AST for -a, AST for b, AST for c
 
 input: semi colon token (;)
 7: end of parse (semi colon unrecognized, so not consumed).
@@ -154,18 +154,18 @@ input: semi colon token (;)
 
 state: binary
 operator stack: binary addition
-operand stack: AST for -u, AST for b * c
+operand stack: AST for -a, AST for b * c
 
    Next the addition is replaced by an AST representing the addition.
    
 state: success
 operator stack: empty
-operand stack: AST for -u + b * c
+operand stack: AST for -a + b * c
 
       +
     /   \
    -     *  
    |    / \
-   u   b   c
+   a   b   c
 
 ```
