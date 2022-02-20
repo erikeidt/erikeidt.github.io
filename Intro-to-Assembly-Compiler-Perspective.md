@@ -68,7 +68,7 @@ rather that when to execute the then-part.
         <else-part>
     endIf1:
    
-Again the condition is reversed because we are tellikng the processor when to skip the then and do the else rather than when to do the then part.
+Again the condition is reversed because we are telling the processor when to skip the then and do the else rather than when to do the then part.
 
 The then-part ends with an uncondtional branch.&nbsp; If that code is executing we know that the if statement's condition is true, and the then-part has fired.&nbsp; 
 Upon completion of the then-part the next statement after the entire if should execute, certainly not the else-part.&nbsp; The `else1:` label does not break
@@ -143,7 +143,7 @@ In assembly programming, many people like to choose label names based on what's 
 maybe naming the label `PrintNext:`.&nbsp;
 However, I choose label based on the structured control statement whose pattern equivalent that produces the label(s).&nbsp; 
 Here the if-goto-label pattern equivalent is from an if-then statement, so the label is endIf1: .&nbsp; 
-If you write a compiler, you'll find it will naturally wants to usea similar approach 
+If you write a compiler, you'll find it will naturally want to use a similar approach 
 in that the labels are associated with the patterns being translated rather than the next coming after them.
 
 ### Indentation
@@ -157,9 +157,9 @@ But flat is a traditional approach to assembly language.
 The operators && along with || provide for compound conditions.&nbsp; These need to be simplified for complete if-goto-label.&nbsp; 
 However, they simplify easily in if-goto-label.
 
-The idea is two split the two operands (left and right) of && into two statements; same with ||, to split the left and right operands into their own if-goto-label statements.
+The idea is two split the two operands (left and right) of `&&` into two statements; same with `||`, to split the left and right operands into their own if-goto-label statements.
 
-#### Conjunction, &&
+#### Conjunction, `&&`
 
 With &&, if first condition is false, we skip the then-part.&nbsp; Only if the first condition is true do we even test the second condition, and then,
 if the second condition is false, we also skip the then-part.&nbsp; So, the then-part only runs if both conditions are true.
@@ -177,7 +177,7 @@ if the second condition is false, we also skip the then-part.&nbsp; So, the then
 
 This is now in assembly-friendly full if-goto-label form.
 
-#### Disjunction, ||
+#### Disjunction, `||`
 
 With ||, if the first condition is true, we jump ahead to fire the then-part.&nbsp; Only if the first condition is false, do we test the second condition, and then,
 if the second condition is false, we skip the then-part.&nbsp; So, the then-part runs if either condition is true.&nbsp; 
