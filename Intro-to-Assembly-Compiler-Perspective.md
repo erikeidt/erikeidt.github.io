@@ -1,17 +1,13 @@
 # Introduction to Assembly Language, from a Compiler Perspective
 
-## Structured Control Statements, Assembly's if-goto-label
+## Structured Control Statements, and how Assembly's if-goto-label can implement them
 
 Popular high level languages use structured control statements; 
 these include if-then, if-then-else, for-loop, while-loop, etc..
 
 Assembly language has if-goto-label, for all control structures.&nbsp;
 Each high level language control statement has a simple pattern,
-and each one has an equivalent pattern in if-goto-label.
-
-Every application of a pattern for translation requires all new labels.&nbsp; So, I name my labels
-based on the control structure along with a unique number for that statement.&nbsp; 
-Like `if1`, `endIf1`, `then1`, `else1`, etc..&nbsp; And later `if2`, `endIf2`, `then2`, `else2`.
+and there is an equivalent pattern for each one in assembly's if-goto-label style.
 
 Assembly language patterns use if-goto-label.&nbsp; There are three constructs: unconditional branch, conditional branch, and label.&nbsp;
 * Unconditional Branch &#8212; `goto Label;` a jump to another location, no condition is tested.
@@ -23,6 +19,10 @@ Labels are just marking points in the code with names.&nbsp; At the most primiti
 Labels do not start a new section; labels are read by the assembler but removed from machine code.&nbsp; 
 The processor will happily execute sequential statements regardless of an intervening label.&nbsp; 
 When we don't want that, we use branches.&nbsp; Look for the unconditional branch in if-then-else pattern.&nbsp; 
+
+Every application of a pattern for translation requires all new labels.&nbsp; So, I name my labels
+based on the control structure along with a unique number for that statement.&nbsp; 
+Like `if1`, `endIf1`, `then1`, `else1`, etc..&nbsp; And later `if2`, `endIf2`, `then2`, `else2`.
 
 Let's also note that each pattern's equivalent in if-goto-label is compilable C language syntax.&nbsp; 
 This means that you can translate some C code into if-goto-label and compile & run in C before taking to assembly language.&nbsp; 
@@ -51,7 +51,6 @@ Some processors like MIPS and RISC V can do limited conditional branches in one 
 
 Notice that the condition is negated: this is because in if-goto-label we are telling the processor when to skip the then-part
 rather that when to execute the then-part.
-
 
 #### The if-then-else statement
 
