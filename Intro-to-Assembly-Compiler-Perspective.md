@@ -168,7 +168,8 @@ if the second condition is false, we also skip the then-part.&nbsp; So, the then
         if ( a && b )
             <then-part>
 
-    -------- equivalent in if-goto-label -------- split left & right operands of && into their own if-goto, while reversing conditions
+    -------- equivalent in if-goto-label -------- split left & right operands of && into their own if-goto
+    --------------------------------------------- reversing both conditions
     
         if ( ! a ) goto endIf1;                   // if the first condition is false, skip the then-part
         if ( ! b ) goto endIf1;                   // if the second condition is false, skip the then-part
@@ -186,7 +187,8 @@ An additional label is needed for to decompose this construct, which allows skip
         if ( a || b )
             <then-part>
 
-    -------- equivalent in if-goto-label -------- split left & right operands of || into their own if-goto, while reversing 2nd condition
+    -------- equivalent in if-goto-label -------- split left & right operands of || into their own if-goto, 
+    --------------------------------------------- keeping 1st condition forwards but reversing 2nd condition
     
         if ( a ) goto then1;                      // if first condition is true, run the then-part
         if ( ! b ) goto endIf1;                   // if second condition is false, skip the then-part
