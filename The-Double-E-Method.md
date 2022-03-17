@@ -23,7 +23,7 @@ Such a tree node can be called an Abstract Syntax Tree, AST, so the operand stac
 When proper binding of operators to operands is discovered, those operators and their operands are removed from these stacks and replaced.&nbsp; 
 The replacement is one tree representing the operators bound to their operands, and this replacement is is pushed onto the operand stack.
 
-When the parse successfully completes, then an AST representing the entire expression is left on the operand stack.
+When the parse successfully completes, then one AST representing the entire expression is left on the operand stack.
 
 This method is:
 
