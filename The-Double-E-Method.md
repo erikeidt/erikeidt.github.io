@@ -112,7 +112,7 @@ input: identifier a
 
 state: binary
 operator stack: unary negation
-operand stack: identififer a
+operand stack: identifier a
 
 input: plus sign token (+)
 3: binary addition operator: reduce until precedence of addition is higher than that on the operator stack
