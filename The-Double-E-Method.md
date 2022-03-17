@@ -88,6 +88,8 @@ That's the gist of it.
 
 # Example
 
+Let's parse: -a + b*c;
+
 ```
  u   u   b   u   b   u   b		States
   \ / \ / \ / \ / \ / \ / \     	\ for current state ready for input, / for transitions to next state
