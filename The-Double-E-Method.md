@@ -5,25 +5,25 @@
 This article describes the Double-E Infix Expression Parsing Method.&nbsp; 
 Infix expressions are the kind found in most programming languages, like C.
 
-The Double-E method uses two-states and two-stacks.
+The Double-E method uses two states and two stacks.
 
 The states are simple: unary and binary.&nbsp; 
 To oversimplify slightly, the unary state says we're looking for a unary operator or an operand, and the binary state says we're looking for a binary operator or the end of an expression.
 
 One of the two stacks is for operators and the other for operands.&nbsp; 
-These stacks are intermediate storage used to hold operators and operands before their proper precedence and binding in context is known.&nbsp; 
+These stacks are intermediate storage used to hold operators and operands before their proper precedence and binding is known.&nbsp; 
 
 An element of the operator stack is a simple enum describing an operator.&nbsp; 
-These differentiate between unary negation and subtraction, for example, so is a stack of true operators in the expression language, rather than tokens.
+These differentiate between unary negation and subtraction, for example, so is a stack of true operators in the expression language, rather than just tokens.
 
 An element of the operand stack is a tree node, which represents an expression.&nbsp; 
 Tree nodes can represent constants, identifiers, addition of two operands, etc.&nbsp; 
-Such a tree node is called an Abstract Syntax Tree, AST, so the operand stack is a stack of ASTs.
+Such a tree node can be called an Abstract Syntax Tree, AST, so the operand stack is a stack of ASTs.
 
-When proper binding of operators to operands is discovered, those operators and operands are removed from these stacks and replaced.&nbsp; 
-The replacement is a tree representing the operators bound to their operands, and this replacement is is pushed onto the operand stack.
+When proper binding of operators to operands is discovered, those operators and their operands are removed from these stacks and replaced.&nbsp; 
+The replacement is one tree representing the operators bound to their operands, and this replacement is is pushed onto the operand stack.
 
-When the parse successfully completes, then an AST representing the expression is left on the operand stack.
+When the parse successfully completes, then an AST representing the entire expression is left on the operand stack.
 
 This method is:
 
