@@ -53,6 +53,9 @@ This method is:
 	* [Draconum Double-E Expression Parser](https://github.com/erikeidt/Draconum/tree/master/src/3.%20Expression%20Parser)
 	  * [ExpressionParser.cs](https://github.com/erikeidt/Draconum/blob/master/src/3.%20Expression%20Parser/Expression%20Parser%20Library/ExpressionParser.cs)
 
+I developed this algorithm in 1978.&nbsp; The closest thing I've see to this is the Shunting Yard algorithm, but that is lacking significant capability.&nbsp; We might describe the Double-E algorithm as gluing two Shunting Yard algorithms together (the two states) employing a second stack.
+
+
 ## Notes
 
 When starting the parse of an infix expression, the initial state is the unary state, and the stacks are both empty.
