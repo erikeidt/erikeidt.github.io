@@ -45,7 +45,7 @@ This method is:
 	* Each *token* is examined only once, and immediately converted to an operator or operand
 	  * and placed on one of the two stacks.
 	* Can work directly on characters; does not need a formal lexer.
-        * Beyond the stacks, the only objects created are the AST's for parse output.
+	* Beyond the stacks, the only objects created are the AST's for parse output.
 
 * Composable 
 	* Composes with recursive descent statement parser
