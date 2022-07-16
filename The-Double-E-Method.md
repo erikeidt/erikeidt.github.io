@@ -33,6 +33,8 @@ This method is:
 	  * current state tells us whether operator is unary or binary
 	* Two simple stacks
 	  * the stacks are used to manage precedence and bind partial expressions to operators
+	* No additional classes/objects are required for parsing state, beyond those for the output AST data structure and the two stacks.
+	  * Most of the parsing happens within a single function.
 
 * Complete
 	* Handles unary negation, indirection, subtraction, multiplication, prefix, postfix, ternary operators.
@@ -45,7 +47,7 @@ This method is:
 	* Each *token* is examined only once, and immediately converted to an operator or operand
 	  * and placed on one of the two stacks.
 	* Can work directly on characters; does not need a formal lexer.
-	* Beyond the stacks, the only objects created are the AST's for parse output.
+	* Beyond the (reusable) stacks, the only objects created are the AST's for parse output.
 
 * Composable 
 	* Composes with recursive descent statement parser
