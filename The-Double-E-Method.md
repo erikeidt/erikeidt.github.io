@@ -2,26 +2,26 @@
 
 ## Introduction 
 
-This article describes the Double-E Infix Expression Parsing Method.&nbsp; 
-Infix expressions are the kind found in most programming languages, like C.
+This article describes the Double-E Infix Expression Parsing Method.
+
+This is a method for parsing infix expressions such as we find in most languages like C, having many levels of precedence, and a rich set of operators with static operator precedence.&nbsp; It is a bottoms-up approach to parsing similar to general purpose shift-reduce parsing, though dedicated to and simplified for infix expressions &#8212; meaning parse state tables are replaced by two states, each represented by their own code section.&nbsp; It is as simple as the Shunting Yard algorithm, though is also industrial strength, without the well-known limitations of the former (e.g. operator support and error detection).
 
 The Double-E method uses two states and two stacks.
 
-The states are simple: unary and binary.&nbsp; 
-To oversimplify slightly, the unary state says we're looking for a unary operator or an operand, and the binary state says we're looking for a binary operator or the end of an expression.
+The states are simple: Unary and Binary.&nbsp; 
+To oversimplify slightly, the Unary State says we're looking for a unary operator or an operand, and the Binary State says we're looking for a binary operator or the end of an expression.
 
-One of the two stacks is for operators and the other for operands.&nbsp; 
-These stacks are intermediate storage used to hold operators and operands before their proper precedence and binding is known.&nbsp; 
+One of the two stacks is for Operators and the other for Operands.&nbsp; 
+These stacks are intermediate storage used to hold operators and operands before their proper precedence and binding is known.
 
-An element of the operator stack is a simple enum describing an operator.&nbsp; 
-These differentiate between unary negation and subtraction, for example, so is a stack of true operators in the expression language, rather than just tokens.
+An element of the operator stack is a simple enum describing an operator.&nbsp; These differentiate between unary negation and subtraction, for example, so is a stack of true operators in the expression language, rather than just tokens.
 
 An element of the operand stack is a tree node, which represents an expression.&nbsp; 
 Tree nodes can represent constants, identifiers, addition of two operands, etc.&nbsp; 
 Such a tree node can be called an Abstract Syntax Tree, AST, so the operand stack is a stack of ASTs.
 
 When proper binding of operators to operands is discovered, those operators and their operands are removed from these stacks and replaced.&nbsp; 
-The replacement is one tree representing the operators bound to their operands, and this replacement is is pushed onto the operand stack.
+Each replacement is a single tree representing the operators bound to their operands, and this replacement is is pushed onto the operand stack.
 
 When the parse successfully completes, then one AST representing the entire expression is left on the operand stack.
 
