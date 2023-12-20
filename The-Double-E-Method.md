@@ -56,7 +56,7 @@ This method is:
 	* [Draconum Double-E Expression Parser](https://github.com/erikeidt/Draconum/tree/master/src/3.%20Expression%20Parser)
 	  * [ExpressionParser.cs](https://github.com/erikeidt/Draconum/blob/master/src/3.%20Expression%20Parser/Expression%20Parser%20Library/ExpressionParser.cs)
 
-I developed this algorithm in 1978.&nbsp; The closest thing I've see to this is the Shunting Yard algorithm, but that is lacking significant capability.&nbsp; We might describe the Double-E algorithm as gluing two Shunting Yard algorithms together (the two states) employing a second stack.
+I developed this algorithm in 1978.&nbsp; The closest thing I've see to this is the Shunting Yard algorithm, but that is lacking significant capability.&nbsp; We might describe the Double-E algorithm as gluing two Shunting Yard algorithms together (the two states) while also employing a second stack.
 
 
 ## Notes
@@ -126,13 +126,14 @@ input: plus sign token (+)
    popping unary negation off the operator stack, popping identifier a off the operand stack
    and pushing the AST for unary negation of identifier a onto the operand stack
    push operator binary addition onto the operator stack
+   switch to unary state
 
 state: unary
 operator stack: binary addition
 operand stack: AST for -a
 
 input: identifier b
-4: push operand identifier b onto the operand stack
+4: push operand identifier b onto the operand stack; switch to binary state
 
 state: binary
 operator stack: binary addition
@@ -140,14 +141,14 @@ operand stack: AST for -a, AST for b
 
 input: asterisk token (*)
 5: reduce (nothing to do: binary multiplication has higher precedence than binary addition)
-   push binary multiplication onto operator stack
+   push binary multiplication onto operator stack; switch to unary state
 
 state: unary
 operator stack: binary addition, binary multiplication
 operand stack: AST for -a, AST for b
 
 input: identifier c
-6: push operand c
+6: push operand c; switch to binary state
 
 state: binary
 operator stack: binary addition, binary multiplication
@@ -156,19 +157,19 @@ operand stack: AST for -a, AST for b, AST for c
 input: semi colon token (;)
 7: end of parse (semi colon unrecognized, so not consumed).
    (it is legal to end parse when in binary state)
-   Reduce until single operand.&nbsp; Parse error if cannot reduce to 1, if unmatch paren, etc..
+   Reduce until single operand. Parse error if cannot reduce to 1, if unmatch paren, etc..
    
    Reducing will first remove the binary multiplication from the stacks, resulting in:
 
-state: binary
 operator stack: binary addition
 operand stack: AST for -a, AST for b * c
 
    Next the addition is replaced by an AST representing the addition.
    
-state: success
 operator stack: empty
 operand stack: AST for -a + b * c
+
+    exit the parse, yielding the one operand remaining on the operand stack:
 
       +
     /   \
