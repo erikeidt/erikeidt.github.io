@@ -14,7 +14,7 @@ To oversimplify slightly, the Unary State says we're looking for a unary operato
 One of the two stacks is for Operators and the other for Operands.&nbsp; 
 These stacks are intermediate storage used to hold operators and operands before their proper precedence and binding is known.
 
-An element of the operator stack is a simple enum describing an operator.&nbsp; These differentiate between unary negation and subtraction, for example, so is a stack of true operators in the expression language, rather than just tokens.
+An element of the operator stack is a simple enum describing an operator.&nbsp; These differentiate between unary negation and substraction, for example, so is a stack of true operators in the expression language, rather than just tokens.
 
 An element of the operand stack is a tree node, which represents an expression.&nbsp; 
 Tree nodes can represent constants, identifiers, addition of two operands, etc.&nbsp; 
