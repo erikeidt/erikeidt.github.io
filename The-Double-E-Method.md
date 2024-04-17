@@ -21,7 +21,7 @@ Tree nodes can represent constants, identifiers, addition of two operands, etc.&
 Such a tree node can be called an Abstract Syntax Tree, AST, so the operand stack is a stack of ASTs.
 
 When proper binding of operators to operands is discovered, those operators and their operands are removed from these stacks and replaced.&nbsp; 
-Each replacement is a single tree representing the operators bound to their operands, and this replacement is is pushed onto the operand stack.
+Each replacement is a single tree representing the operators bound to their operands, and this replacement is pushed onto the operand stack.
 
 When the parse successfully completes, then one AST representing the entire expression is left on the operand stack.
 
