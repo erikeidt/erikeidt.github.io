@@ -69,9 +69,9 @@ In the unary state, we're expecting either a unary operator or an operand or gro
 
 * see an operand (e.g. identifier, constant), so create AST for the operand and push it onto the operand stack.&nbsp; Switch to binary state.
 
-* see an open paranthesis, then push operator for grouping paren onto the operator stack.&nbsp; Stay in unary state.
+* see an open parenthesis, then push operator for grouping paren onto the operator stack.&nbsp; Stay in unary state.
 
-In the binary state, we are expecting binary operators, or close paranthesis (or open paren).&nbsp; If we:
+In the binary state, we are expecting binary operators, or close parenthesis (or open paren).&nbsp; If we:
 
 * see an operator token (e.g. - or \*) in the binary state, and we know we have a binary operator (e.g. subtraction or multiplication).
 
@@ -81,7 +81,7 @@ operator on top of the operator stack is greater (greater or equal for right ass
 The reduction builds ASTs by popping operators and as many operands as the operators take, 
 off the stacks, and pushing the newly constructed partial tree back onto the operand stack.&nbsp; Switch back to unary state.
 
-* see a close paranthesis, then reduce until matching open parenthesis.
+* see a close parenthesis, then reduce until matching open parenthesis.
 
   Note: the matching open paren may be a function invocation operator, if so build function invocation tree node.&nbsp; 
 If not, discard grouping paren.&nbsp; Stay in binary state.
