@@ -14,14 +14,14 @@ To oversimplify slightly, the Unary State says we're looking for a unary operato
 One of the two stacks is for Operators and the other for Operands.&nbsp; 
 These stacks are intermediate storage used to hold operators and operands before their proper precedence and binding is known.
 
-An element of the operator stack is a simple enum describing an operator.&nbsp; These differentiate between unary negation and subtraction, for example, so is a stack of true operators in the expression language, rather than just tokens.
+An element of the operator stack is a simple enum describing an operator.&nbsp; These differentiate between unary negation and substraction, for example, so is a stack of true operators in the expression language, rather than just tokens.
 
 An element of the operand stack is a tree node, which represents an expression.&nbsp; 
 Tree nodes can represent constants, identifiers, addition of two operands, etc.&nbsp; 
 Such a tree node can be called an Abstract Syntax Tree, AST, so the operand stack is a stack of ASTs.
 
 When proper binding of operators to operands is discovered, those operators and their operands are removed from these stacks and replaced.&nbsp; 
-Each replacement is a single tree representing the operators bound to their operands, and this replacement is is pushed onto the operand stack.
+Each replacement is a single tree representing the operators bound to their operands, and this replacement is pushed onto the operand stack.
 
 When the parse successfully completes, then one AST representing the entire expression is left on the operand stack.
 
@@ -69,9 +69,9 @@ In the unary state, we're expecting either a unary operator or an operand or gro
 
 * see an operand (e.g. identifier, constant), so create AST for the operand and push it onto the operand stack.&nbsp; Switch to binary state.
 
-* see an open paranthesis, then push operator for grouping paren onto the operator stack.&nbsp; Stay in unary state.
+* see an open parenthesis, then push operator for grouping paren onto the operator stack.&nbsp; Stay in unary state.
 
-In the binary state, we are expecting binary operators, or close paranthesis (or open paren).&nbsp; If we:
+In the binary state, we are expecting binary operators, or close parenthesis (or open paren).&nbsp; If we:
 
 * see an operator token (e.g. - or \*) in the binary state, and we know we have a binary operator (e.g. subtraction or multiplication).
 
@@ -81,7 +81,7 @@ operator on top of the operator stack is greater (greater or equal for right ass
 The reduction builds ASTs by popping operators and as many operands as the operators take, 
 off the stacks, and pushing the newly constructed partial tree back onto the operand stack.&nbsp; Switch back to unary state.
 
-* see a close paranthesis, then reduce until matching open parenthesis.
+* see a close parenthesis, then reduce until matching open parenthesis.
 
   Note: the matching open paren may be a function invocation operator, if so build function invocation tree node.&nbsp; 
 If not, discard grouping paren.&nbsp; Stay in binary state.
