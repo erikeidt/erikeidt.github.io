@@ -9,14 +9,14 @@ This is a method for parsing infix expressions such as we find in most languages
 The Double-E method uses two states and two stacks.
 
 The states are simple: Unary and Binary.&nbsp; 
-To oversimplify slightly, the Unary State says we're looking for a unary operator or an operand, and the Binary State says we're looking for a binary operator or the end of an expression.
+To oversimplify, the Unary State says we're looking for a unary operator or an operand, and the Binary State says we're looking for a binary operator or the end of an expression.
 
 One of the two stacks is for Operators and the other for Operands.&nbsp; 
 These stacks are intermediate storage used to hold operators and operands before their proper precedence and binding is known.
 
-An element of the operator stack is a simple enum describing an operator.&nbsp; These differentiate between unary negation and substraction, for example, so is a stack of true operators in the expression language, rather than just tokens.
+An element of the Operator Stack is a simple enum describing an operator.&nbsp; The enum differentiates between unary negation and substraction, for example, so, the operator stack is a stack of true operators in the expression language, rather than input tokens.
 
-An element of the operand stack is a tree node, which represents an expression.&nbsp; 
+An element of the Operand Stack is a tree node, which represents an expression.&nbsp; 
 Tree nodes can represent constants, identifiers, addition of two operands, etc.&nbsp; 
 Such a tree node can be called an Abstract Syntax Tree, AST, so the operand stack is a stack of ASTs.
 
@@ -28,7 +28,7 @@ When the parse successfully completes, then one AST representing the entire expr
 This method is:
 
 * Simple  
-	* The two states are easily reflected in code; there is no need for complicated state machine
+	* The two states are easily reflected in code alone; there is no need for complicated state machine
 	  * depending on next input, simply stay in current state or switch to the other
 	  * current state tells us whether operator is unary or binary
 	* Two simple stacks
@@ -40,7 +40,7 @@ This method is:
 	* Handles unary negation, indirection, subtraction, multiplication, prefix, postfix, ternary operators.
 	* Handles all operators of C, such as grouping parenthesis, function invocation, array referencing.
 	* Differentiates between f(a,b) and f((a,b)).
-	* Can be expanded to handle lambdas, casts, other.
+	* Can be expanded to handle lambdas, casts, juxtaposition, other.
 
 * Efficient
 	* Simple loops for the states, no recursion, no backtracking.
@@ -56,37 +56,37 @@ This method is:
 	* [Draconum Double-E Expression Parser](https://github.com/erikeidt/Draconum/tree/master/src/3.%20Expression%20Parser)
 	  * [ExpressionParser.cs](https://github.com/erikeidt/Draconum/blob/master/src/3.%20Expression%20Parser/Expression%20Parser%20Library/ExpressionParser.cs)
 
-I developed this algorithm in 1978.&nbsp; The closest thing I've see to this is the Shunting Yard algorithm, but that is lacking significant capability.&nbsp; We might describe the Double-E algorithm as gluing two Shunting Yard algorithms together (the two states) while also employing a second stack.
+I developed this algorithm in 1978.&nbsp; The closest thing I've see to this is the Shunting Yard algorithm, but that is lacking significant capability.&nbsp; We might describe the Double-E algorithm as gluing two Shunting Yard algorithms together (one for each of the two states, while also capturing more parse state in the stacks).
 
 
 ## Notes
 
 When starting the parse of an infix expression, the initial state is the unary state, and the stacks are both empty.
 
-In the unary state, we're expecting either a unary operator or an operand or grouping parenthesis (or others).&nbsp; If we:
+In the unary state, we're expecting either a unary operator or an operand or grouping parenthesis (or others).&nbsp; If we see:
 
-* see an operator token (e.g. -, \*), then we know it is a unary operator (e.g. unary negation, indirection).&nbsp; Push the identified unary operator onto the operator stack.&nbsp; Stay in unary state.
+* an operator token (e.g. -, \*), then we know it is a unary operator (e.g. unary negation, indirection).&nbsp; Push the identified unary operator onto the operator stack.&nbsp; Stay in unary state.
 
-* see an operand (e.g. identifier, constant), so create AST for the operand and push it onto the operand stack.&nbsp; Switch to binary state.
+* an operand (e.g. identifier, constant), so create AST for the operand and push it onto the operand stack.&nbsp; Switch to binary state.
 
-* see an open parenthesis, then push operator for grouping paren onto the operator stack.&nbsp; Stay in unary state.
+* an open parenthesis, then push operator for grouping paren onto the operator stack.&nbsp; Stay in unary state.
 
-In the binary state, we are expecting binary operators, or close parenthesis (or open paren).&nbsp; If we:
+In the binary state, we are expecting binary operators, or close parenthesis (or open paren).&nbsp; If we see:
 
-* see an operator token (e.g. - or \*) in the binary state, and we know we have a binary operator (e.g. subtraction or multiplication).
+* an operator token (e.g. - or \*) in the binary state, and we know we have a binary operator (e.g. subtraction or multiplication).
 
   The idea now is to reduce the operator stack as much as possible, then push the identified operator.&nbsp;
 Reduction is a matter of composing an AST for an expression on the stacks as long as the precedence of the 
-operator on top of the operator stack is greater (greater or equal for right associative) than the precedence of the newly identified operator.&nbsp;
+operator on top of the operator stack is greater than the precedence of the newly identified operator (greater or equal for right associative).&nbsp;
 The reduction builds ASTs by popping operators and as many operands as the operators take, 
 off the stacks, and pushing the newly constructed partial tree back onto the operand stack.&nbsp; Switch back to unary state.
 
-* see a close parenthesis, then reduce until matching open parenthesis.
+* a close parenthesis, then reduce until matching open parenthesis.
 
   Note: the matching open paren may be a function invocation operator, if so build function invocation tree node.&nbsp; 
 If not, discard grouping paren.&nbsp; Stay in binary state.
 
-* see an open parenthesis, that is a function invocation.
+* an open parenthesis, that is a function invocation.
 
   Reduce.&nbsp; Push function invocation operator onto the operator stack.&nbsp; Switch to unary state.
 
