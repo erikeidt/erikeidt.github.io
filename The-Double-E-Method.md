@@ -4,7 +4,11 @@
 
 This article describes the Double-E Infix Expression Parsing Method.
 
-This is a method for parsing infix expressions such as we find in most languages like C, having many levels of precedence, and a rich set of operators with static operator precedence.&nbsp; It is a bottoms-up approach to parsing similar to general purpose shift-reduce parsing, though dedicated to and simplified for infix expressions &#8212; meaning parse state tables are replaced by two states, each represented by their own code section.&nbsp; It is as simple as the Shunting Yard algorithm, though is also industrial strength, without the well-known limitations of the former (e.g. operator support and error detection).
+This is a method for parsing infix expressions such as we find in most languages like C, having many levels of precedence, and a rich set of operators with static operator precedence.&nbsp; It is a bottoms-up approach to parsing similar to general purpose shift-reduce parsing, though dedicated to and simplified for infix expressions.
+
+It does not use state tables, recursion, or backtracking.&nbsp; Parse state tables are replaced by two states, which are reflected in two code sections rather than as data tables.&nbsp; Instead of recursion, there are two simple stacks.&nbsp; It looks at each input item once and handles it directly &#8212; it does not re-examine input; it does not backtrack.&nbsp; It is industrial strength accepting what it should and rejecting what it shouldn't, yet as simple as the Shunting Yard algorithm (yet without the well-known limitations: operator support and error detection).
+
+It is also extensible, for example, with a simple change, what are errors in my implementation, can detect missing binary operator (e.g. juxtaposition as in `a b`), similarly missing operand `f(,x)`.
 
 The Double-E method uses two states and two stacks.
 
@@ -56,7 +60,7 @@ This method is:
 	* [Draconum Double-E Expression Parser](https://github.com/erikeidt/Draconum/tree/master/src/3.%20Expression%20Parser)
 	  * [ExpressionParser.cs](https://github.com/erikeidt/Draconum/blob/master/src/3.%20Expression%20Parser/Expression%20Parser%20Library/ExpressionParser.cs)
 
-I developed this algorithm in 1978.&nbsp; The closest thing I've see to this is the Shunting Yard algorithm, but that is lacking significant capability.&nbsp; We might describe the Double-E algorithm as gluing two Shunting Yard algorithms together (one for each of the two states, while also capturing more parse state in the stacks).
+I developed this algorithm in 1978.&nbsp; The closest thing I've see to this is the Shunting Yard algorithm, but that is lacking significant capability.&nbsp; We might describe the Double-E algorithm as gluing two Shunting Yard algorithms together (one for each of the two states, while also capturing more parse state in the states & stacks).&nbsp; Shift-reduce parsing is more general purpose approach, though state tables introduce complexity that isn't needed for infix expression parsing, which arguably makes it harder to understand.
 
 
 ## Notes
