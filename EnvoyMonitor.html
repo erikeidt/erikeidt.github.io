@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Data Viewer</title>
+</head>
+<body>
+    <script>
+        var totalProduction = 0;
+        var netConsumption = 0;
+        var totalConsumption = 0;
+        var chargeDischarge = 0;
+        var stateOfCharge = 0;
+
+        var pcXhr = null;
+        var pcto = null;
+
+        var btXhr = null;
+        var btto = null;
+
+        var trXhr = null;
+        var trto = null;
+
+        var progressCount = 1000000;
+        var bearer = "Bearer ";
+
+        var cnt, cnt2;
+
+        var grid, v_grid;
+        var solar, v_solar;
+        var home, v_home;
+        var batt, v_batt;
+
+        var cons;
+        var soch, v_soch;
+        var unc;
+        var txt;
+
+        var gridDirElem;
+        var solrDirElem;
+        var battDirElem;
+
+        var g_h, g_b;
+        var s_g, s_h, s_b;
+        var b_g, b_h;
+
+        var v_g_h, v_g_b;
+        var v_s_g, v_s_h, v_s_b;
+        var v_b_g, v_b_h;
+
+        var vl_g_h, vl_g_b;
+        var vl_s_g, vl_s_h, vl_s_b;
+        var vl_b_g, vl_b_h;
+
+        var vb_g_h, vb_g_b;
+        var vb_s_g, vb_s_h, vb_s_b;
+        var vb_b_g, vb_b_h;
+
+        var tcntElem;
+        var modeElem;
+        var reserveElem;
+        var shutoffElem;
+        var settElem;
+
+        var tariffChartElem;
+        var tariffTimeElem;
+        var altTariffTimeElem;
+        var instalTimeElem;
+
+        function initVars() {
+            if (solar == null || solar == undefined) {
+                var tokenValue = document.getElementById("bearer").value;
+                if (tokenValue) {
+                    bearer += tokenValue;
+                    var shb = document.getElementById("showhidebearer");
+                    shb.style.display = "none";
+                }
+                tariffChartElem = document.getElementById("tarifftab");
+
+                txt = document.getElementById("txt");
+                cnt = document.getElementById("cnt");
+                cnt2 = document.getElementById("cnt2");
+
+                grid = document.getElementById("grid");
+                v_grid = document.getElementById("v.grid");
+                solar = document.getElementById("solar");
+                v_solar = document.getElementById("v.solar");
+                home = document.getElementById("home");
+                v_home = document.getElementById("v.home");
+                batt = document.getElementById("batt");
+                v_batt = document.getElementById("v.batt");
+
+                soch = document.getElementById("soc");
+                v_soch = document.getElementById("v.soc");
+                cons = document.getElementById("cons");
+                unc = document.getElementById("unc");
+
+                g_h = document.getElementById("g.h");
+                v_g_h = document.getElementById("v.g.h");
+                vl_g_h = document.getElementById("vl.g.h");
+                vb_g_h = document.getElementById("vb.g.h");
+
+                g_b = document.getElementById("g.b");
+                v_g_b = document.getElementById("v.g.b");
+                vl_g_b = document.getElementById("vl.g.b");
+                vb_g_b = document.getElementById("vb.g.b");
+
+                s_g = document.getElementById("s.g");
+                v_s_g = document.getElementById("v.s.g");
+                vl_s_g = document.getElementById("vl.s.g");
+                vb_s_g = document.getElementById("vb.s.g");
+
+                s_h = document.getElementById("s.h");
+                v_s_h = document.getElementById("v.s.h");
+                vl_s_h = document.getElementById("vl.s.h");
+                vb_s_h = document.getElementById("vb.s.h");
+
+                s_b = document.getElementById("s.b");
+                v_s_b = document.getElementById("v.s.b");
+                vl_s_b = document.getElementById("vl.s.b");
+                vb_s_b = document.getElementById("vb.s.b");
+
+                b_g = document.getElementById("b.g");
+                v_b_g = document.getElementById("v.b.g");
+                vl_b_g = document.getElementById("vl.b.g");
+                vb_b_g = document.getElementById("vb.b.g");
+
+                b_h = document.getElementById("b.h");
+                v_b_h = document.getElementById("v.b.h");
+                vl_b_h = document.getElementById("vl.b.h");
+                vb_b_h = document.getElementById("vb.b.h");
+
+                tcntElem = document.getElementById("tcnt");
+                modeElem = document.getElementById("mode");
+                reserveElem = document.getElementById("reserve");
+                shutoffElem = document.getElementById("shutoff");
+                settElem = document.getElementById("sett");
+
+                tariffTimeElem = document.getElementById("tarifftime");
+                schedTimeElem = document.getElementById("schedtime");
+                altTariffTimeElem = document.getElementById("altttime");
+
+
+                gridDirElem = document.getElementById("griddir");
+                battDirElem = document.getElementById("battdir");
+                solrDirElem = document.getElementById("solrdir");
+            }
+        }
+
+        function updateValueAndHeading(value, elem, idle, less, greater) {
+            var heading;
+            if (value == 0) {
+                heading = idle;
+            } else if (value < 0) {
+                heading = less;
+                value = -value;
+            } else {
+                heading = greater;
+            }
+            if (elem.innerHTML !== heading)
+                elem.innerHTML = heading;
+            return value;
+        }
+
+        function startMonitoring() {
+            stopMonitoring();
+            initVars();
+            startProductionConsumptionMonitoring();
+            startBatteryMonitoring();
+            startTariffMonitoring();
+        }
+
+        function startProductionConsumptionMonitoring() {
+            initVars();
+            if (pcXhr != null)
+                pcXhr.abort();
+            if (pcto != null) {
+                clearTimeout(pcto);
+                pcto = null;
+            }
+            var characterCount = 0;
+            var lastlen = 0;
+
+            //console.log("restarting stream/meter Xhr");
+            pcXhr = new XMLHttpRequest();
+            pcXhr.open("GET", "https://envoy.local/stream/meter", true);
+            pcXhr.setRequestHeader("Accept", "application/json");
+            pcXhr.setRequestHeader("Content-Type", "application/json");
+            pcXhr.setRequestHeader("Authorization", bearer);
+
+            pcXhr.onabort = function (ev) {
+                // don't know why abort happens on this one but must have sthg to do with streaming
+                if (pcXhr.readyState == 4)
+                    return;
+                console.log("stream/meter aborted", ev, pcXhr);
+                txt.innerHTML += "p: aborted<br/>";
+            }
+
+            pcXhr.onerror = function (ev) {
+                console.log("stream/meter errored", ev, pcXhr);
+                txt.innerHTML += "p: errored<br/>";
+                pcXhr.abort();
+                pcXhr = null;
+                if (pcto != null)
+                    pcto = null;
+                pcto = setTimeout(startProductionConsumptionMonitoring, 2000);
+            }
+
+            pcXhr.onprogress = function () {
+                var resp = pcXhr.response;
+                var len = resp.length;
+                var diff = len - lastlen;
+                progressCount++;
+                lastlen = len;
+                if (len <= 2 || diff <= 2) {
+                    cnt.innerHTML = cnt2.innerHTML = "-";
+                    characterCount = len;
+                    return;
+                }
+                var data = resp.substring(characterCount);
+                if (data.startsWith("data: "))
+                    data = data.substring(6);
+                //txt.innerHTML = data;
+                characterCount = len;
+                try {
+                    var dataObj = JSON.parse(data);
+                } catch (err) {
+                    characterCount = len;
+                    return;
+                }
+
+                var prod = dataObj.production;
+                var pha = prod["ph-a"];
+                var phb = prod["ph-b"];
+                var phc = prod["ph-c"];
+
+                cnt.innerHTML = cnt2.innerHTML = new Date().toLocaleTimeString("en-GB");
+
+                totalProduction = parseFloat(pha.p) + parseFloat(phb.p) + parseFloat(phc.p);
+                updateValueAndHeading(totalProduction, solrDirElem, "Solar Idle", "wow!", "Solar &#8649 Producing");
+                var sstr = totalProduction.toFixed(0);
+                solar.innerHTML = sstr.padStart(4, ' ');
+                //setSvgUnsignedNumericField(sstr, v_solar);
+                setSvgSignedNumericField(sstr, v_solar, 0);
+
+                var netcon = dataObj["net-consumption"];
+                var nca = netcon["ph-a"];
+                var ncb = netcon["ph-b"];
+                var ncc = netcon["ph-c"];
+
+                netConsumption = parseFloat(nca.p) + parseFloat(ncb.p) + parseFloat(ncc.p);
+
+                var gridValue = updateValueAndHeading(netConsumption, gridDirElem, "Grid Idle", "Grid &#8647 Exporting", "Grid &#8649 Importing");
+                var gstr = gridValue.toFixed(0);
+                grid.innerHTML = gstr.padStart(5, ' ');
+                setSvgSignedNumericField(gstr, v_grid, netConsumption);
+
+                var totcon = dataObj["total-consumption"];
+                var tca = totcon["ph-a"];
+                var tcb = totcon["ph-b"];
+                var tcc = totcon["ph-c"];
+
+                totalConsumption = parseFloat(tca.p) + parseFloat(tcb.p) + parseFloat(tcc.p);
+                if (cons != null && cons != undefined)
+                    cons.innerHTML = totalConsumption.toFixed(2).padStart(5, ' ');
+
+                computeHome();
+
+                delete pcXhr.response;
+
+                if (progressCount % 100 == 0) {
+                    //progressCount += 10000;
+                    pcXhr.abort();
+                    pcXhr = null;
+                    if (pcto != null)
+                        clearTimeout(pcto);
+                    pcto = setTimeout(startProductionConsumptionMonitoring, 900);
+                }
+            }
+            pcXhr.send();
+        }
+
+        function startBatteryMonitoring() {
+            initVars();
+            if (btXhr != null)
+                btXhr.abort();
+            if (btto != null) {
+                clearTimeout(btto);
+                btto = null;
+            }
+            btXhr = new XMLHttpRequest();
+            btXhr.open("GET", "https://envoy.local/ivp/ensemble/power", true);
+            btXhr.setRequestHeader("Accept", "application/json");
+            btXhr.setRequestHeader("Content-Type", "application/json");
+            btXhr.setRequestHeader("Authorization", bearer);
+
+            btXhr.onabort = function (ev) {
+                console.log("ivp/ensemble/power aborted", ev, btXhr);
+                txt.innerHTML += "b: aborted<br/>";
+            }
+
+            btXhr.onerror = function (ev) {
+                console.log("ivp/ensemble/power errored", ev, btXhr);
+                txt.innerHTML += "b: errored<br/>";
+                btXhr.abort();
+                btXhr = null;
+                if (btto != null)
+                    clearTimeout(btto);
+                btto = setTimeout(startBatteryMonitoring, 2000);
+            }
+
+            btXhr.onprogress = function () {
+                var data;
+                try {
+                    data = JSON.parse(btXhr.response);
+                } catch (err) {
+                    btXhr.abort();
+                    btXhr = null;
+                    btto = setTimeout(startBatteryMonitoring, 850);
+                    return;
+                }
+                var devs = data["devices:"];
+                var count = devs.length;
+                var chrg = 0.0;
+                var socp = 0.0;
+
+                for (var i = 0; i < count; i++) {
+                    var dev = devs[i];
+                    chrg += parseFloat(dev.real_power_mw);
+                    socp += parseInt(dev.soc);
+                }
+
+                socp /= count;
+                chrg /= 1000;
+
+                chargeDischarge = chrg;
+                stateOfCharge = socp;
+
+                var bchrg = updateValueAndHeading(chrg, battDirElem, "Battery Idle", "Battery &#8647 Charging", "Battery &#8649 Discharging");
+                var bstr = bchrg.toFixed(0);
+                batt.innerHTML = bstr.padStart(4, ' ');
+                setSvgSignedNumericField(bstr, v_batt, chrg);
+
+                if (socp == 100) {
+                    soch.innerHTML = "100";
+                    v_soch.innerHTML = "100%";
+                } else {
+                    var ttt = socp.toFixed(1).padStart(3, ' ');
+                    soch.innerHTML = ttt;
+                    v_soch.innerHTML = ttt + "%";
+                }
+
+                computeHome();
+
+                btto = setTimeout(startBatteryMonitoring, 850);
+            }
+
+            btXhr.send();
+        }
+
+        // (gs + ss + bs) - (hd + bd + gd) = unaccounted (supply if +, demand if -)
+        function computeHome() {
+            var homeLoad = totalConsumption + chargeDischarge;
+            var hstr = homeLoad.toFixed(0);
+            home.innerHTML = hstr.padStart(5, ' ');
+            //setSvgUnsignedNumericField(hstr, v_home);
+            setSvgSignedNumericField(hstr, v_home, -1);
+
+            var gs = netConsumption > 0 ? netConsumption : 0
+            var gd = netConsumption <= 0 ? -netConsumption : 0;
+            var bs = chargeDischarge > 0 ? chargeDischarge : 0;
+            var bd = chargeDischarge <= 0 ? -chargeDischarge : 0;
+            var supply = gs + totalProduction + bs;
+            var demand = homeLoad + bd + gd;
+            var un = supply - demand;
+            if (!!unc)
+                unc.innerHTML = un.toFixed(2);
+
+            var srcCount = 0;
+            if (gs > 0) srcCount++;
+            if (bs > 0) srcCount++;
+            if (totalProduction > 0) srcCount++;
+
+            var drainCount = 1;
+            if (bd > 0) drainCount++;
+            if (gd > 0) drainCount++;
+
+            var b2g = 0;
+            var b2h = 0;
+            var s2b = 0;
+            var s2h = 0;
+            var s2g = 0;
+            var g2b = 0;
+            var g2h = 0;
+
+            switch (srcCount) {
+                case 1:
+                    // identify the source
+                    if (gs > 0) { // grid
+                        g2b = bd;
+                        g2h = homeLoad;
+                    }
+                    else if (bs > 0) { // batt
+                        b2g = gd;
+                        b2h = homeLoad;
+                    }
+                    else { // solar
+                        s2g = gd;
+                        s2h = homeLoad;
+                        s2b = bd;
+                    }
+                    break;
+                case 2:
+                    if (gs > 0) {
+                        if (totalProduction > 0) { // grid & solar -> batt & home
+                            s2b = Math.min(bd, totalProduction);
+                            s2h = totalProduction - s2b;
+                            g2h = homeLoad - s2h;
+                            g2b = gs - g2h;
+                        }
+                        else { // grid & batt -> home
+                            g2h = gs;
+                            b2h = bs;
+                        }
+                    }
+                    else { // not grid
+                        if (totalProduction > 0) { // solar & batt -> grid & home
+                            s2g = Math.min(gd, totalProduction);
+                            s2h = totalProduction - s2g;
+                            b2h = homeLoad - s2h;
+                            b2g = gs - b2h;
+                        }
+                        else { // batt -> grid & home
+                            b2g = gd;
+                            b2h = homeLoad;
+                        }
+                    }
+                    break;
+                case 3:
+                    // all goes home
+                    g2h = gs;
+                    b2h = bs;
+                    s2h = totalProduction;
+                    break;
+            }
+
+            if (g2b < 0)
+                g2b = 0;
+
+            b2g = b2g.toFixed(0);
+            b2h = b2h.toFixed(0);
+            s2g = s2g.toFixed(0);
+            s2b = s2b.toFixed(0);
+            s2h = s2h.toFixed(0);
+            g2b = g2b.toFixed(0);
+            g2h = g2h.toFixed(0);
+
+            b_g.innerHTML = b2g;
+            b_h.innerHTML = b2h;
+            s_g.innerHTML = s2g;
+            s_b.innerHTML = s2b;
+            s_h.innerHTML = s2h;
+            g_b.innerHTML = g2b;
+            g_h.innerHTML = g2h;
+
+            setSvgCenteredNumericField(b2g, vb_b_g, v_b_g, vl_b_g);
+            setSvgCenteredNumericField(b2h, vb_b_h, v_b_h, vl_b_h);
+            setSvgCenteredNumericField(s2g, vb_s_g, v_s_g, vl_s_g);
+            setSvgCenteredNumericField(s2b, vb_s_b, v_s_b, vl_s_b);
+            setSvgCenteredNumericField(s2h, vb_s_h, v_s_h, vl_s_h);
+            setSvgCenteredNumericField(g2b, vb_g_b, v_g_b, vl_g_b);
+            setSvgNumericFieldWithBoxBehindCentered(g2h, vb_g_h, v_g_h, vl_g_h);
+        }
+
+        function startTariffMonitoring() {
+            initVars();
+            if (trXhr != null)
+                trXhr.abort();
+            if (trto != null) {
+                clearTimeout(trto);
+                trto = null;
+            }
+
+            var counter = 100;
+
+            trXhr = new XMLHttpRequest();
+            trXhr.open("GET", "https://envoy.local/admin/lib/tariff.json", true);
+            trXhr.setRequestHeader("Accept", "application/json");
+            trXhr.setRequestHeader("Content-Type", "application/json");
+            trXhr.setRequestHeader("Authorization", bearer);
+
+            trXhr.onabort = function (ev) {
+                console.log("admin/lib/tariff.json aborted", ev, trXhr);
+                txt.innerHTML += "t: aborted<br/>";
+            }
+
+            trXhr.onerror = function (ev) {
+                console.log("admin/lib/tariff.json aborted", ev, trXhr);
+                txt.innerHTML += "t: errored<br/>";
+                trXhr.abort();
+                trXhr = null;
+                if (trto != null)
+                    clearTimeout(trto);
+                trto = setTimeout(startTariffMonitoring, 5000);
+            }
+
+            trXhr.onprogress = function (ev) {
+                var data;
+                try {
+                    data = JSON.parse(trXhr.response);
+                } catch (err) {
+                    trXhr.abort();
+                    trXhr = null;
+                    trto = setTimeout(startTariffMonitoring, 5000);
+                    return;
+                }
+
+                var schedule = data.schedule;
+                var mode = schedule.battery_mode;
+                if (mode == "economy") mode = "Savings";
+                else if (mode == "self-consumption") mode = "Self-Consumption";
+                else if (mode == "full-backup") mode = "Full Backup";
+
+                modeElem.innerHTML = mode;
+                reserveElem.innerHTML = schedule.reserved_soc;
+                shutoffElem.innerHTML = schedule.very_low_soc;
+
+                var tartar = data.tariff;
+
+                function makeNiceDate(date) {
+                    var tdateAr = date.toLocaleString("en-US", { hour12: false }).split("(");
+                    var tdate = tdateAr[0];
+                    for (var k = 1; k < tdateAr.length; k++)
+                        tdate += "<br/>(" + tdateAr[k];
+                    return tdate;
+                }
+
+                tariffTimeElem.innerHTML = makeNiceDate(new Date(tartar.date * 1000));
+                altTariffTimeElem.innerHTML = makeNiceDate(new Date(tartar.storage_settings.date * 1000));
+                schedTimeElem.innerHTML = new Date(schedule.date).toLocaleTimeString("en-GB");
+
+                var nowItem = new Date();
+
+                var settingsArr = schedule.schedule.tariff;
+                var settings;
+                var found = false;
+                for (var j = 0; j < settingsArr.length; j++) {
+                    settings = settingsArr[j];
+                    var thisYear = nowItem.getFullYear();
+                    var startDay = new Date(settings.start + "/" + thisYear)
+                    var endDay = new Date(settings.end + "/" + thisYear)
+                    if (endDay <= startDay)
+                        endDay = new Date(settings.end + "/" + (thisYear + 1))
+                    if (nowItem >= startDay && nowItem < endDay) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found) {
+                    var dayName = nowItem.toLocaleString('en-us', { weekday: 'long' }).substring(0, 3);
+                    var setting = settings[dayName];
+                    var nowMinutes = nowItem.getMinutes();
+                    var nowTimeMinutes = nowItem.getHours() * 60 + nowMinutes;
+                    var nowSet = "";
+
+                    var r = tariffChartElem.tBodies[0].rows;
+                    while (r.length > 2)
+                        tariffChartElem.deleteRow(2);
+
+                    for (var i = 0; i < setting.length; i++) {
+                        var oneSet = setting[i];
+                        var timeMinutes = oneSet.start;
+
+                        var currentPeriod = false;
+                        if (nowTimeMinutes >= timeMinutes && nowTimeMinutes < timeMinutes + oneSet.duration) {
+                            nowSet = oneSet.setting;
+                            currentPeriod = true;
+                        }
+                        var r2 = tariffChartElem.insertRow();
+                        var startTimeCol = r2.insertCell();
+                        startTimeCol.innerHTML = "&nbsp;" + makeTimeStringFromTimeMinutes(timeMinutes) + "&nbsp;";
+
+                        var endTimeCol = r2.insertCell();
+                        endTimeCol.innerHTML = "&nbsp;" + makeTimeStringFromTimeMinutes(timeMinutes + oneSet.duration - 1) + "&nbsp;";
+
+                        var modekey = r2.insertCell();
+                        modekey.innerHTML = "&nbsp;" + oneSet.setting + "&nbsp;";
+
+                        var nnooww = r2.insertCell();
+                        nnooww.innerHTML = currentPeriod ? "&nbsp;&#x2714;&nbsp;" : "";
+                    }
+
+                    settElem.innerHTML = nowSet;
+                    tcntElem.innerHTML = nowItem.toLocaleTimeString("en-GB");
+                }
+                // wait until next time period
+                var roundToNearestSecond = 60; // round to 1 minute
+                var nowSeconds = nowMinutes * 60 + nowItem.getSeconds();
+                var delay = (Math.trunc(nowSeconds / roundToNearestSecond) + 1) * roundToNearestSecond - nowSeconds;
+                delay *= 1000;
+                delay += 200;
+
+                trto = setTimeout(startTariffMonitoring, delay);
+            }
+
+            trXhr.send();
+        }
+
+        function makeTimeStringFromTimeMinutes(minutes) {
+            var hour = Math.trunc(minutes / 60);
+            var minute = minutes % 60;
+            return hour.toString().padStart(2, '0') + ":" + minute.toString().padStart(2, '0');
+        }
+
+        function stopMonitoring() {
+            if (pcXhr != null) {
+                pcXhr.abort();
+                pcXhr = null;
+            }
+            if (pcto != null) {
+                clearTimeout(pcto);
+                pcto = null;
+            }
+            if (btXhr != null) {
+                btXhr.abort();
+                btXhr = null;
+            }
+            if (btto != null) {
+                clearTimeout(btto);
+                btto = null;
+            }
+            if (trXhr != null) {
+                trXhr.abort();
+                trXhr = null;
+            }
+            if (trto != null) {
+                clearTimeout(trto);
+                trto = null;
+            }
+        }
+
+        function setSvgSignedNumericField(str, numElem, dirNum) {
+            if (str === "0" || str === "-0") {
+                if (numElem.innerHTML !== "&nbsp;&nbsp;&nbsp;0") {
+                    numElem.innerHTML = "&nbsp;&nbsp;&nbsp;0";
+                }
+            }
+            else {
+                var sign = dirNum < 0 ? "+" : "-";
+                var disp = str;
+                switch (str.length) {
+                    case 1: disp = sign + "&nbsp;&nbsp;" + str; break;
+                    case 2: disp = sign + "&nbsp;&nbsp;" + str; break;
+                    case 3: disp = sign + "&nbsp;" + str; break;
+                    case 4: disp = sign + "&nbsp;&nbsp;" + str; break;
+                    default: disp = sign + "&nbsp;" + str; break;
+                }
+                if (numElem.innerHTML !== disp)
+                    numElem.innerHTML = disp;
+            }
+        }
+
+        //function setSvgUnsignedNumericField(str, numElem) {
+        //    if (str === "0" || str === "-0") {
+        //        numElem.innerHTML = "&nbsp;&nbsp;&nbsp;0";
+        //    }
+        //    else {
+        //        var disp = str;
+        //        switch (str.length) {
+        //            case 1: disp = "&nbsp;&nbsp;&nbsp;" + str; break;
+        //            case 2: disp = "&nbsp;&nbsp;" + str; break;
+        //            case 3: disp = "&nbsp;&nbsp;" + str; break;
+        //            case 4: disp = "&nbsp;&nbsp;" + str; break;
+        //            default: break;
+        //        }
+        //        if (numElem.innerHTML !== disp)
+        //            numElem.innerHTML = disp;
+        //    }
+        //}
+
+        function setSvgCenteredNumericField(str, boxElem, numElem, lineElem) {
+            if (str === "0" || str === "-0") {
+                if (numElem.innerHTML !== "") {
+                    lineElem.style.display = "none";
+                    numElem.innerHTML = "";
+                }
+            }
+            else {
+                if (lineElem.style.display === "none") {
+                    lineElem.style.display = "";
+                }
+                var oldi = numElem.innerHTML;
+                if (oldi !== str) {
+                    if (oldi.length != str.length) {
+                        var width = boxElem.width.baseVal.value;
+                        var midw = width >> 1;
+                        var wpc = width / 5;
+                        var xoff = Math.round(midw - str.length / 2 * wpc);
+                        var newx = boxElem.x.baseVal.value + xoff + 4;
+                        numElem.setAttribute("x", newx);
+                    }
+                    numElem.innerHTML = str;
+                }
+            }
+        }
+
+        function setSvgNumericFieldWithBoxBehindCentered(str, boxElem, numElem, lineElem) {
+            if (str === "0" || str === "-0") {
+                if (numElem.innerHTML !== "") {
+                    lineElem.style.display = "none";
+                    numElem.innerHTML = "";
+                }
+            }
+            else {
+                if (lineElem.style.display === "none") {
+                    lineElem.style.display = "";
+                }
+                var oldi = numElem.innerHTML;
+                if (numElem.innerHTML !== str) {
+                    numElem.innerHTML = str;
+                    if (oldi.length != str.length) {
+                        var bb = numElem.getBBox();
+                        var x = bb.x;
+                        var w = bb.width;
+                        boxElem.setAttribute("x", x - 3);
+                        boxElem.setAttribute("width", w + 6);
+                    }
+                }
+            }
+        }
+
+        function hideShow(elemName, buttonName, hiddenButtonText, shownButtonText) {
+            var s = document.getElementById(elemName).style;
+            if (s.display === "none") {
+                s.display = "";
+                document.getElementById(buttonName).innerHTML = hiddenButtonText;
+            } else {
+                s.display = "none";
+                document.getElementById(buttonName).innerHTML = shownButtonText;
+            }
+        }
+
+        function hideShowChart() {
+            hideShow("tablechart", "hideshowchart", "Hide Chart", "Show Chart");
+        }
+
+        function hideShowSvg() {
+            hideShow("svgchart", "hideshowsvg", "Hide SVG", "Show SVG");
+        }
+
+        function hideShowInfo() {
+            hideShow("information", "hideshowinfo", "Hide About", "About");
+        }
+
+    </script>
+
+    <button onclick="startMonitoring()">Start All</button>
+    <button onclick="startProductionConsumptionMonitoring()">Start Solar</button>
+    <button onclick="startBatteryMonitoring()">Start Battery</button>&nbsp;
+    <button onclick="startTariffMonitoring()">Start Tariff</button>&nbsp;
+    <button onclick="stopMonitoring()">Stop All</button>
+    <button id="hideshowchart" onclick="hideShowChart()">Show Chart</button>
+    <button id="hideshowsvg" onclick="hideShowSvg()">Hide SVG</button>
+    <button id="hideshowinfo" onclick="hideShowInfo()">About</button>
+
+    <br />
+    <div id="showhidebearer">
+        <p>Enter Enphase Entrez Bearer Token <a href="https://entrez.enphaseenergy.com/entrez_tokens">(see https://entrez.enphaseenergy.com/entrez_tokens)</a></p>
+        <input id="bearer" />
+    </div>
+    <br />
+
+    <table id="tablechart" border="1" cellpadding="2" cellspacing="1" width="100%"
+           style="display: none; border-collapse: collapse; text-align: center; font-size: x-large;
+            font-family: Courier New, Courier, monospace; font-weight: bold">
+
+        <tr>
+            <th colspan="2" id="griddir" style="color: crimson; border-right: double black">Grid Idle</th>
+            <th colspan="3" id="solrdir" style="color: #E6C300; border-right: double black">Solar Idle</th>
+            <th colspan="3" id="battdir" style="color: #4078A5; border-right: double black">Battery Idle</th>
+
+            <th style="color: seagreen">Home</th>
+        </tr>
+
+        <tr>
+            <td colspan="2" id="grid" style="color: crimson; border-right: double black">0</td>
+            <td colspan="3" id="solar" style="color: #E6C300; border-right: double black">0</td>
+            <td colspan="3" id="batt" style="color: #4078A5; border-right: double black">0</td>
+
+            <td id="home" style="color: seagreen">0</td>
+        </tr>
+
+        <tr style="font-size: medium; font-style: italic">
+            <th style="color: crimson">&#8618; Home</th>
+            <th style="color: crimson; border-right: double black">&#8618; Batt</th>
+
+            <th style="color: #E6C300">&#8618; Home</th>
+            <th style="color: #E6C300">&#8618; Batt</th>
+            <th style="color: #E6C300; border-right: double black">&#8618; Grid</th>
+
+            <th style="color: #4078A5">&#8618; Home</th>
+            <th style="color: #4078A5">&#8618; Grid</th>
+            <th style="color: #4078A5; border-right: double black">SoC %</th>
+
+            <td id="cnt" style="font-style: normal">00:00:00</td>
+        </tr>
+
+        <tr>
+            <td id="g.h" style="color: crimson">0</td>
+            <td id="g.b" style="color: crimson; border-right: double black">0</td>
+
+            <td id="s.h" style="color: #E6C300">0</td>
+            <td id="s.b" style="color: #E6C300">0</td>
+            <td id="s.g" style="color: #E6C300; border-right: double black">0</td>
+
+            <td id="b.h" style="color: #4078A5">0</td>
+            <td id="b.g" style="color: #4078A5">0</td>
+            <td id="soc" style="color: #4078A5; border-right: double black">0</td>
+        </tr>
+    </table>
+
+    <br />
+
+    <div style="display: flex" width="100%">
+        <div>
+            <svg id="svgchart" height="360" width="360" font-family="Courier New, Courier, monospace" font-size="medium">
+                <defs>
+                    <marker id="arwhead" markerWidth="14" markerHeight="14" refX="1" refY="5" orient="auto" markerUnits="userSpaceOnUse" stroke="context-stroke" fill="context-stroke">
+                        <path d="M 1 1 L 1 9 L 12 5 z" />
+                    </marker>
+                </defs>
+
+                <circle cx="52" cy="180" r="42" fill="crimson" />
+                <text x="41" y="205" stroke="WhiteSmoke" style="font-size: xx-small; font-style: italic">Grid</text>
+
+                <circle cx="180" cy="52" r="42" fill="#E6C300" />
+                <text x="166" y="77" stroke="WhiteSmoke" style="font-size: xx-small; font-style: italic">Solar</text>
+
+                <circle cx="298" cy="180" r="42" fill="seagreen" />
+                <text x="288" y="205" stroke="WhiteSmoke" style="font-size: xx-small; font-style: italic">Home</text>
+
+                <circle cx="180" cy="308" r="42" fill="#4078A5" />
+                <text x="162" y="333" stroke="WhiteSmoke" style="font-size: xx-small; font-style: italic">Battery</text>
+
+                <!--<path d="M 52 180 L 180 52" stroke="black" />
+                <path d="M 180 52 L 298 180" stroke="black" />
+                <path d="M 298 180 L 180 308" stroke="black" />
+                <path d="M 180 308 L 52 180" stroke="black" />-->
+                <!-- grid to home -->
+                <path id="vl.g.h" d="M 94 180 L 243 180" stroke="crimson" stroke-width="3px" marker-end="url(#arwhead)" />
+
+                <!-- solar to grid -->
+                <path id="vl.s.g" d="M 150 82 L 91 141" stroke="#E6C300" stroke-width="3px" marker-end="url(#arwhead)" />
+                <!-- solar battery -->
+                <path id="vl.s.b" d="M 180 94 L 180 253" stroke="#E6C300" stroke-width="3px" marker-end="url(#arwhead)" />
+                <!-- solar to home -->
+                <path id="vl.s.h" d="M 209 83 L 261 140" stroke="#E6C300" stroke-width="3px" marker-end="url(#arwhead)" />
+
+                <!-- battery to home -->
+                <path id="vl.b.h" d="M 209 277 L 261 220" stroke="#4078A5" stroke-width="3px" marker-end="url(#arwhead)" />
+
+                <!-- numbers on paths between consumers & producers -->
+                <!-- grid to battery -->
+                <g id="vl.g.b">
+                    <path d="M 82 210 L 141 269" stroke="crimson" stroke-width="3px" marker-end="url(#arwhead)" />
+                    <rect id="vb.g.b" x="72" y="225" width="64" height="16" fill="white" />
+                    <text id="v.g.b" x="80" y="238" stroke="crimson">00000</text>
+                </g>
+
+                <!-- battery to grid -->
+                <g id="vl.b.g">
+                    <path d="M 150 278 L 91 219" stroke="#4078A5" stroke-width="3px" marker-end="url(#arwhead)" />
+                    <rect id="vb.b.g" x="91" y="244" width="64" height="16" fill="white" />
+                    <text id="v.b.g" x="100" y="257" stroke="#4078A5">00000</text>
+                </g>
+
+                <rect id="vb.g.h" x="115" y="171" width="50" height="16" fill="white" />
+                <text id="v.g.h" x="116" y="184" stroke="crimson">00000</text>
+
+                <rect id="vb.s.h" x="198" y="99" width="64" height="16" fill="white" />
+                <text id="v.s.h" x="206" y="112" stroke="#E6C300">00000</text>
+
+                <rect id="vb.s.b" x="148" y="119" width="64" height="16" fill="white" />
+                <text id="v.s.b" x="156" y="132" stroke="#E6C300">00000</text>
+
+                <rect id="vb.s.g" x="91" y="99" width="64" height="16" fill="white" />
+                <text id="v.s.g" x="100" y="112" stroke="#E6C300">00000</text>
+
+                <rect id="vb.b.h" x="198" y="244" width="64" height="16" fill="white" />
+                <text id="v.b.h" x="206" y="257" stroke="#4078A5">00000</text>
+
+                <text id="v.soc" x="224" y="338" stroke="#4078A5">100%</text>
+
+                <!-- consumers & producers-->
+                <rect x="14" y="172" width="76" height="18" rx="6" fill="white" />
+                <text id="v.grid" x="20" y="186" stroke="crimson">- 00000</text>
+
+                <rect x="142" y="44" width="76" height="18" rx="6" fill="white" />
+                <text id="v.solar" x="148" y="58" stroke="#E6C300">&nbsp;00000</text>
+
+                <rect x="260" y="172" width="76" height="18" rx="6" fill="white" />
+                <text id="v.home" x="266" y="186" stroke="seagreen">&nbsp;00000</text>
+
+                <rect x="142" y="300" width="76" height="18" rx="6" fill="white" />
+                <text id="v.batt" x="148" y="314" stroke="#4078A5">- 00000</text>
+
+                <!--<rect x="45" y="152" width="15" height="15" fill="white" />
+                <text id="v.imex" x="48" y="164" stroke="crimson">+</text>
+
+                <rect x="173" y="280" width="15" height="15" fill="white" />
+                <text id="v.chrg" x="176" y="292" stroke="#4078A5">+</text>-->
+
+            </svg>
+
+        </div>
+
+        <div style="padding-left: 15px">
+            <table border="1" cellpadding="2" cellspacing="1"
+                   style="border-collapse: collapse; text-align: center; font-size: large;
+                    font-family: Courier New, Courier, monospace; font-weight: bold">
+
+                <tr>
+                    <td id="cnt2" colspan="2" style="font-size: medium">00:00:00</td>
+                </tr>
+                <tr>
+                    <th style="color: #E6C300">Mode</th>
+                    <td id="mode">mode</td>
+                </tr>
+                <tr>
+                    <th style="color: #4078A5">Reserve %</th>
+                    <td id="reserve">reserve</td>
+                </tr>
+                <tr>
+                    <th style="color: crimson">Shutoff %</th>
+                    <td id="shutoff">shutoff</td>
+                </tr>
+                <tr>
+                    <th style="color: seagreen">Mode Key</th>
+                    <td id="sett">sett</td>
+                </tr>
+                <!--<tr>
+                    <th style="color: seagreen">Software Version</th>
+                    <td id="vers"></td>
+                </tr>-->
+            </table>
+
+            <br />
+
+            <table border="1" cellpadding="4"
+                   style="padding-left: 20px; border-collapse: collapse; text-align: center; font-size: small;
+                    font-family: Courier New, Courier, monospace; font-weight: bold;
+                    padding-left: 5px; padding-right: 5px">
+                <tr><th colspan="2">Tariff</th></tr>
+                <tr><th>Written</th><td id="tarifftime">1/1/2025</td></tr>
+                <tr><th>Alternate</th><td id="altttime">1/1/2025</td></tr>
+                <tr><th>Installed</th><td id="schedtime">1/1/2025</td></tr>
+            </table>
+            <br/>
+            <table id="tarifftab" border="1" cellpadding="3"
+                       style="padding-left: 20px; border-collapse: collapse; text-align: center; font-size: small;
+                    font-family: Courier New, Courier, monospace; font-weight: bold;
+                    padding-left: 5px; padding-right: 5px">
+                    <tr><th colspan="4">Today's Schedule</th></tr>
+                    <tr><th colspan="2">Updated</th><td id="tcnt" colspan="2">00:00:00</td></tr>
+            </table>
+</div>
+    </div>
+
+    <br />
+
+    <div id="information" style="display: none">
+        <div style="padding-left: 5px; font-family: Courier New, Courier, monospace; float: right">
+            <p>Enphase Monitor by Erik Eidt (c) 2025, version 0.1</p>
+            <p>Original location: https://github.com/; License is MIT Open Source; provided gratis with no claim for fitness of use.</p>
+            <p>Shows energy production/consumption for Solar, Grid, Bttery and Home.</p>
+            <p>
+                Requires CORS override so that this page can make local enquiries into your Envoy.&nbsp;
+                For Solar & Battery monitoring, this requires an easily obtained Entrez Bearer token from Enphase, though Tariff monitoring does not.
+                Your system has to be on your local network, identified as "https://envoy.local".
+            </p>
+            <p>
+                There are two already existing monitoring methods from Enphase, one is the "Live Status" from the App or Web, and the other is the local Envoy's built-in website at "https://envoy.local".</p>
+            <p>
+                Compared with the "Live Status" monitor at the Enphase web, this one runs 100% on your local network: no internet services are used or required.&nbsp; 
+                This means it will work when the internet is down at either your end or theirs (Enphase's).
+                Where as "Live Status" has a 15 minute time out (though you can immediately restart it), this one will run until you stop it (or it gets unhandled networking errors).</p>
+            <p>
+                Compared with the Envoy's built-in website, Enphase Monitor by Erik Eidt provides practically instant updates.&nbsp;
+                It also shows what power is going where, and tariff information such as schedule period, mode key and upcoming changes.&nbsp;
+                Instead of reporting tariff rates, this monitor reports the low-level net-effect called "Schedule Mode Key" that the Envoy computes/schedules based on your tariff selection.
+            </p>
+            <p>A graphical (SVG) display and a textual chart can both be enabled or disabled.</p>
+            <p>In the graphical display, a - sign indicates power production, e.g. for battery: discharging, for grid: importing power; while a + sign indicates consumption, e.g. for battery: charging, for grid: exporting</p>
+            <p>
+                Known Tariff Schedule Mode Keys are:
+                <div style:"padding-left: 20px">
+                    <table>
+                        <tr><td>ID</td><td>Idle (i.e. no charge/discharge)</td></tr>
+                        <tr><td>ZN</td><td>Zero Net (i.e. self consumption behavior)</td></tr>
+                        <tr><td>CG</td><td>Charge From Grid</td></tr>
+                        <tr><td>DG</td><td>Discharge to Grid</td></tr>
+                        <tr><td>ND</td><td>No Discharge</td></tr>
+                        <tr><td>DL</td><td>Discharge to Load</td></tr>
+                        <tr><td>CP</td><td>Charge From PV</td></tr>
+                        <tr><td>HEMS Discharge</td><td></td></tr>
+                        <tr><td>HEMS Charge</td><td></td></tr>
+                        <tr><td>FCR</td><td>Charge or discharge</td></tr>
+                        <tr><td>HEMS Charge from Grid</td></tr>
+                    </table>
+                </div>
+                <br />
+            </p>
+            <div>
+                <h3>About CORS</h3>
+                <p>
+                    CORS is a security feature that prevents one website from going through your browser and using your already open channel to another website for malicious intent, and sadly also for any and all purposes.&nbsp;
+                    For CORS permission to use https:/envoy.local, we would have to modify https://envoy.local, which isn't going to happen.&nbsp; 
+                    Instead, we can use a CORS override addon/extension to the brower.&nbsp;
+                    You can find a CORS override extension from your browser's webstore
+                </p>
+                <p>
+                    CORS override needs to be configured so that this page has access to the envoy.&nbsp;
+                    I use chrome on my desktop, and install a general CORS override.&nbsp;
+                    To make this more secure, I create a new User Profile added to the browser, and install the CORS override there.&nbsp;
+                    I don't run any other websites or web pages from that User profile except this one.&nbsp;
+                    And I don't install the CORS override extension anywhere except that new Use profile.
+                </p>
+                <p>Even after installing a CORS override extension, you may need to visit https://envoy.local directly from that new User Profile, 
+                and if that doesn't help this monitor get access, then also sign in there before using your token with this monitor</p>
+                <p>If this monitor gets errors, hopefully refreshing the page will fix it.</p>
+            </div>
+            <p>To make this monitor truly local, you're welcome to download this page to your local machine and run it from there (though of course, it won't automatically update when improvements are made here).</p>
+        </div>
+
+        <div id="txt">
+        </div>
+    </div>
+
+</body>
+</html>
