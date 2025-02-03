@@ -3,7 +3,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>Envoy Live Monitor</title>
+    <title>Local Envoy Live Monitor</title>
 </head>
 <body>
     <script>
@@ -957,35 +957,45 @@
                 <tr><th>Alternate</th><td id="altttime">1/1/2025</td></tr>
                 <tr><th>Installed</th><td id="schedtime">1/1/2025</td></tr>
             </table>
-            <br/>
+            <br />
             <table id="tarifftab" border="1" cellpadding="3"
-                       style="padding-left: 20px; border-collapse: collapse; text-align: center; font-size: small;
+                   style="padding-left: 20px; border-collapse: collapse; text-align: center; font-size: small;
                     font-family: Courier New, Courier, monospace; font-weight: bold;
                     padding-left: 5px; padding-right: 5px">
-                    <tr><th colspan="4">Today's Schedule</th></tr>
-                    <tr><th colspan="2">Updated</th><td id="tcnt" colspan="2">00:00:00</td></tr>
+                <tr><th colspan="4">Today's Schedule</th></tr>
+                <tr><th colspan="2">Updated</th><td id="tcnt" colspan="2">00:00:00</td></tr>
             </table>
-</div>
+        </div>
     </div>
 
     <br />
 
     <div id="information" style="display: none">
         <div style="padding-left: 5px; font-family: Courier New, Courier, monospace; float: right">
-            <p>Enphase Monitor by Erik Eidt (c) 2025, version 0.1</p>
-            <p>Original location: https://github.com/; License is MIT Open Source; provided gratis with no claim for fitness of use.</p>
-            <p>Shows energy production/consumption for Solar, Grid, Bttery and Home.</p>
+            <p>Local Enphase Live Monitor by Erik Eidt (c) 2025, version 0.1</p>
+            <p>Original location: https://github.com/; License is MIT Open Source.</p>
+            <p>Live at https://erikeidt.github.io/LocalEnvoyLiveMonitor.html</p>
+            <ul>
+                <li>no advertising</li>
+                <li>no internet access used or needed by this web page</li>
+                <li>no data captured or stored</li>
+            </ul>
+            <p>Shows energy production/consumption for Solar, Grid, Battery and Home.</p>
             <p>
-                Requires CORS override so that this page can make local enquiries into your Envoy.&nbsp;
+                Note: Requires CORS override so that this page can make local enquiries into your Envoy.&nbsp;
+            </p>
+            <p>
                 For Solar & Battery monitoring, this requires an easily obtained Entrez Bearer token from Enphase, though Tariff monitoring does not.
                 Your system has to be on your local network, identified as "https://envoy.local".
             </p>
             <p>
-                There are two already existing monitoring methods from Enphase, one is the "Live Status" from the App or Web, and the other is the local Envoy's built-in website at "https://envoy.local".</p>
+                There are two already existing monitoring methods from Enphase, one is the "Live Status" from the App or Web, and the other is the local Envoy's built-in website at "https://envoy.local".
+            </p>
             <p>
-                Compared with the "Live Status" monitor at the Enphase web, this one runs 100% on your local network: no internet services are used or required.&nbsp; 
+                Compared with the "Live Status" monitor at the Enphase web, this one runs 100% on your local network: no internet services are used or required.&nbsp;
                 This means it will work when the internet is down at either your end or theirs (Enphase's).
-                Where as "Live Status" has a 15 minute time out (though you can immediately restart it), this one will run until you stop it (or it gets unhandled networking errors).</p>
+                Where as "Live Status" has a 15 minute time out (though you can immediately restart it), this one will run until you stop it (or it gets unhandled networking errors).
+            </p>
             <p>
                 Compared with the Envoy's built-in website, Enphase Monitor by Erik Eidt provides practically instant updates.&nbsp;
                 It also shows what power is going where, and tariff information such as schedule period, mode key and upcoming changes.&nbsp;
@@ -1015,8 +1025,8 @@
             <div>
                 <h3>About CORS</h3>
                 <p>
-                    CORS is a security feature that prevents one website from going through your browser and using your already open channel to another website for malicious intent, and sadly also for any and all purposes.&nbsp;
-                    For CORS permission to use https:/envoy.local, we would have to modify https://envoy.local, which isn't going to happen.&nbsp; 
+                    CORS is a security feature that prevents one website from going through your browser and using your already open channel to another website for malicious intent, and sadly also for any and all legitimate purposes.&nbsp;
+                    For CORS permission to use https:/envoy.local, we would have to modify https://envoy.local, which isn't going to happen.&nbsp;
                     Instead, we can use a CORS override addon/extension to the brower.&nbsp;
                     You can find a CORS override extension from your browser's webstore
                 </p>
@@ -1027,8 +1037,10 @@
                     I don't run any other websites or web pages from that User profile except this one.&nbsp;
                     And I don't install the CORS override extension anywhere except that new Use profile.
                 </p>
-                <p>Even after installing a CORS override extension, you may need to visit https://envoy.local directly from that new User Profile, 
-                and if that doesn't help this monitor get access, then also sign in there before using your token with this monitor</p>
+                <p>
+                    Even after installing a CORS override extension, you may need to visit https://envoy.local directly from that new User Profile,
+                    and if that doesn't help this monitor get access, then also sign in there before using your token with this monitor
+                </p>
                 <p>If this monitor gets errors, hopefully refreshing the page will fix it.</p>
             </div>
             <p>To make this monitor truly local, you're welcome to download this page to your local machine and run it from there (though of course, it won't automatically update when improvements are made here).</p>
