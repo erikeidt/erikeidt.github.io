@@ -3,7 +3,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>Local Envoy Live Monitor</title>
+    <title>Local Envoy Live Monitor v0.1.2</title>
 </head>
 <body>
     <script>
@@ -328,7 +328,7 @@
                 for (var i = 0; i < count; i++) {
                     var dev = devs[i];
                     chrg += parseFloat(dev.real_power_mw);
-                    socp += parseInt(dev.soc);
+                    socp += parseFloat(dev.soc);
                 }
 
                 socp /= count;
@@ -523,8 +523,8 @@
                 else if (mode == "full-backup") mode = "Full Backup";
 
                 modeElem.innerHTML = mode;
-                reserveElem.innerHTML = schedule.reserved_soc;
-                shutoffElem.innerHTML = schedule.very_low_soc;
+                reserveElem.innerHTML = schedule.reserved_soc + "%";
+                shutoffElem.innerHTML = schedule.very_low_soc + "%";
 
                 var tartar = data.tariff;
 
@@ -918,22 +918,22 @@
 
         <div style="padding-left: 15px">
             <table border="1" cellpadding="2" cellspacing="1"
-                   style="border-collapse: collapse; text-align: center; font-size: large;
+                   style="border-collapse: collapse; text-align: center; font-size: medium;
                     font-family: Courier New, Courier, monospace; font-weight: bold">
 
                 <tr>
-                    <td id="cnt2" colspan="2" style="font-size: medium">00:00:00</td>
+                    <td id="cnt2" colspan="2">00:00:00</td>
                 </tr>
                 <tr>
                     <th style="color: #E6C300">Mode</th>
                     <td id="mode">mode</td>
                 </tr>
                 <tr>
-                    <th style="color: #4078A5">Reserve %</th>
+                    <th style="color: #4078A5">Reserve</th>
                     <td id="reserve">reserve</td>
                 </tr>
                 <tr>
-                    <th style="color: crimson">Shutoff %</th>
+                    <th style="color: crimson">Shutoff</th>
                     <td id="shutoff">shutoff</td>
                 </tr>
                 <tr>
@@ -962,7 +962,7 @@
                    style="padding-left: 20px; border-collapse: collapse; text-align: center; font-size: small;
                     font-family: Courier New, Courier, monospace; font-weight: bold;
                     padding-left: 5px; padding-right: 5px">
-                <tr><th colspan="4">Today's Schedule</th></tr>
+                <tr><th colspan="4">Current Schedule</th></tr>
                 <tr><th colspan="2">Updated</th><td id="tcnt" colspan="2">00:00:00</td></tr>
             </table>
         </div>
