@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -21,6 +21,12 @@
 
         var trXhr = null;
         var trto = null;
+
+        var gmXhr = null;
+        var gmto = null;
+
+        var eiXhr = null;
+        var eito = null;
 
         var progressCount = 1000000;
         var bearer = "Bearer ";
@@ -67,6 +73,18 @@
         var tariffTimeElem;
         var altTariffTimeElem;
         var instalTimeElem;
+
+        var gridStatusElem;
+        var envoyTimeElem;
+        var envoyVersElem;
+
+        var gridChargeElem;
+        var gridDischargElem;
+        var chargeStartElem;
+        var chargeEndElem;
+        var chargeRuleElem;
+        var afterHoursElem;
+        var peakRuleElem;
 
         function initVars() {
             if (solar == null || solar == undefined) {
@@ -141,10 +159,21 @@
                 schedTimeElem = document.getElementById("schedtime");
                 altTariffTimeElem = document.getElementById("altttime");
 
-
                 gridDirElem = document.getElementById("griddir");
                 battDirElem = document.getElementById("battdir");
                 solrDirElem = document.getElementById("solrdir");
+
+                gridStatusElem = document.getElementById("gridstat");
+                envoyTimeElem = document.getElementById("envoytime");
+                envoyVersElem = document.getElementById("envoyvers");
+
+                gridChargeElem = document.getElementById("gridcharge");
+                gridDischargElem = document.getElementById("griddischarge");
+                chargeStartElem = document.getElementById("mustchargestart");
+                chargeEndElem = document.getElementById("mustchargeduration");
+                chargeRuleElem = document.getElementById("mustchargerule");
+                afterHoursElem = document.getElementById("afterhours");
+                peakRuleElem = document.getElementById("peakrule");
             }
         }
 
@@ -169,6 +198,7 @@
             startProductionConsumptionMonitoring();
             startBatteryMonitoring();
             startTariffMonitoring();
+            startGridMonitoring();
         }
 
         function startProductionConsumptionMonitoring() {
@@ -359,6 +389,102 @@
             btXhr.send();
         }
 
+        function getEnvoyInfo() {
+            initVars();
+            if (eiXhr != null)
+                eiXhr.abort();
+            if (eito != null) {
+                clearTimeout(eito);
+                eito = null;
+            }
+            eiXhr = new XMLHttpRequest();
+            eiXhr.open("GET", "https://envoy.local/info.xml", true);
+            eiXhr.setRequestHeader("Accept", "text/xml");
+            eiXhr.setRequestHeader("Authorization", bearer);
+
+            eiXhr.onabort = function (ev) {
+                console.log("ivp/ensemble/relay", ev, btXhr);
+                txt.innerHTML += "g: aborted<br/>";
+            }
+
+            //eiXhr.onerror = function (ev) {
+            //    console.log("ivp/ensemble/relay", ev, btXhr);
+            //    txt.innerHTML += "g: errored<br/>";
+            //    eiXhr.abort();
+            //    eiXhr = null;
+            //    if (eito != null)
+            //        clearTimeout(eito);
+            //    eito = setTimeout(getEnvoyInfo, 10000);
+            //}
+
+            eiXhr.onprogress = function () {
+                var data;
+                try {
+                    data = new DOMParser().parseFromString(eiXhr.response, "text/xml");
+                } catch (err) {
+                    //eiXhr.abort();
+                    //eiXhr = null;
+                    //eito = setTimeout(getEnvoyInfo, 10000);
+                    return;
+                }
+                //eito = setTimeout(getEnvoyInfo, 10000);
+                var dc = data.documentElement;
+                var tdc = dc.getElementsByTagName("time");
+                var t = tdc[0].childNodes[0].nodeValue;
+                envoyTimeElem.innerHTML = new Date(t * 1000).toLocaleTimeString("en-GB");
+                tdc = dc.getElementsByTagName("software");
+                envoyVersElem.innerHTML = tdc[0].childNodes[0].nodeValue;
+            }
+
+            eiXhr.send();
+        }
+
+        function startGridMonitoring() {
+            initVars();
+            if (gmXhr != null)
+                gmXhr.abort();
+            if (gmto != null) {
+                clearTimeout(gmto);
+                gmto = null;
+            }
+            gmXhr = new XMLHttpRequest();
+            gmXhr.open("GET", "https://envoy.local/ivp/ensemble/relay", true);
+            gmXhr.setRequestHeader("Accept", "application/json");
+            gmXhr.setRequestHeader("Content-Type", "application/json");
+            gmXhr.setRequestHeader("Authorization", bearer);
+
+            gmXhr.onabort = function (ev) {
+                console.log("ivp/ensemble/relay", ev, btXhr);
+                txt.innerHTML += "g: aborted<br/>";
+            }
+
+            gmXhr.onerror = function (ev) {
+                console.log("ivp/ensemble/relay", ev, btXhr);
+                txt.innerHTML += "g: errored<br/>";
+                gmXhr.abort();
+                gmXhr = null;
+                if (gmto != null)
+                    clearTimeout(gmto);
+                gmto = setTimeout(startGridMonitoring, 10000);
+            }
+
+            gmXhr.onprogress = function () {
+                var data;
+                try {
+                    data = JSON.parse(gmXhr.response);
+                } catch (err) {
+                    gmXhr.abort();
+                    gmXhr = null;
+                    gmto = setTimeout(startGridMonitoring, 2000);
+                    return;
+                }
+                gmto = setTimeout(startGridMonitoring, 10000);
+                gridStatusElem.innerHTML = data.mains_oper_state === "closed" ? "connected" : "disconnected";
+            }
+
+            gmXhr.send();
+        }
+
         // (gs + ss + bs) - (hd + bd + gd) = unaccounted (supply if +, demand if -)
         function computeHome() {
             var homeLoad = totalConsumption + chargeDischarge;
@@ -528,6 +654,8 @@
 
                 var tartar = data.tariff;
 
+                //gridDischargElem = tartar.tariff.
+
                 function makeNiceDate(date) {
                     var tdateAr = date.toLocaleString("en-US", { hour12: false }).split("(");
                     var tdate = tdateAr[0];
@@ -566,8 +694,8 @@
                     var nowSet = "";
 
                     var r = tariffChartElem.tBodies[0].rows;
-                    while (r.length > 2)
-                        tariffChartElem.deleteRow(2);
+                    while (r.length > 3)
+                        tariffChartElem.deleteRow(3);
 
                     for (var i = 0; i < setting.length; i++) {
                         var oneSet = setting[i];
@@ -595,6 +723,7 @@
                     settElem.innerHTML = nowSet;
                     tcntElem.innerHTML = nowItem.toLocaleTimeString("en-GB");
                 }
+
                 // wait until next time period
                 var roundToNearestSecond = 60; // round to 1 minute
                 var nowSeconds = nowMinutes * 60 + nowItem.getSeconds();
@@ -603,6 +732,7 @@
                 delay += 200;
 
                 trto = setTimeout(startTariffMonitoring, delay);
+                getEnvoyInfo();
             }
 
             trXhr.send();
@@ -623,6 +753,7 @@
                 clearTimeout(pcto);
                 pcto = null;
             }
+
             if (btXhr != null) {
                 btXhr.abort();
                 btXhr = null;
@@ -631,6 +762,7 @@
                 clearTimeout(btto);
                 btto = null;
             }
+
             if (trXhr != null) {
                 trXhr.abort();
                 trXhr = null;
@@ -638,6 +770,15 @@
             if (trto != null) {
                 clearTimeout(trto);
                 trto = null;
+            }
+
+            if (gmXhr != null) {
+                gmXhr.abort();
+                gmXhr = null;
+            }
+            if (gmto != null) {
+                clearTimeout(gmto);
+                gmto = null;
             }
         }
 
@@ -759,7 +900,8 @@
     <button onclick="startMonitoring()">Start All</button>
     <button onclick="startProductionConsumptionMonitoring()">Start Solar</button>
     <button onclick="startBatteryMonitoring()">Start Battery</button>&nbsp;
-    <button onclick="startTariffMonitoring()">Start Tariff</button>&nbsp;
+    <button onclick="startTariffMonitoring();">Start Tariff</button>&nbsp;
+    <button onclick="startGridMonitoring();">Start Grid</button>&nbsp;
     <button onclick="stopMonitoring()">Stop All</button>
     <button id="hideshowchart" onclick="hideShowChart()">Show Chart</button>
     <button id="hideshowsvg" onclick="hideShowSvg()">Hide SVG</button>
@@ -921,29 +1063,10 @@
                    style="border-collapse: collapse; text-align: center; font-size: medium;
                     font-family: Courier New, Courier, monospace; font-weight: bold">
 
-                <tr>
-                    <td id="cnt2" colspan="2">00:00:00</td>
-                </tr>
-                <tr>
-                    <th style="color: #E6C300">Mode</th>
-                    <td id="mode">mode</td>
-                </tr>
-                <tr>
-                    <th style="color: #4078A5">Reserve</th>
-                    <td id="reserve">reserve</td>
-                </tr>
-                <tr>
-                    <th style="color: crimson">Shutoff</th>
-                    <td id="shutoff">shutoff</td>
-                </tr>
-                <tr>
-                    <th style="color: seagreen">Mode Key</th>
-                    <td id="sett">sett</td>
-                </tr>
-                <!--<tr>
-                    <th style="color: seagreen">Software Version</th>
-                    <td id="vers"></td>
-                </tr>-->
+                <tr><td id="cnt2" colspan="2">00:00:00</td></tr>
+                <tr><th style="color: seagreen">Grid</th><td id="gridstat"></td></tr>
+                <!--<tr><th style="color: seagreen">Envoy Time</th><td id="envoytime"></td></tr>-->
+                <tr><th style="color: seagreen">Envoy Vers</th><td id="envoyvers"></td></tr>
             </table>
 
             <br />
@@ -953,6 +1076,18 @@
                     font-family: Courier New, Courier, monospace; font-weight: bold;
                     padding-left: 5px; padding-right: 5px">
                 <tr><th colspan="2">Tariff</th></tr>
+                <tr><th style="color: #E6C300">Mode</th><td id="mode">mode</td></tr>
+                <tr><th style="color: #4078A5">Reserve</th><td id="reserve">reserve</td></tr>
+                <tr><th style="color: crimson">Shutoff</th><td id="shutoff">shutoff</td></tr>
+
+                <!--<tr><th style="color: crimson" rowspan="5">Charge</th><th>By Import</th><td id="gridcharge">false</td></tr>
+                <tr><th style="color: crimson">Allow Export</th><td id="griddischarge">false</td></tr>
+                <tr><th>Charge Start</th><td id="mustchargestart">start</td></tr>
+                <tr><th>Charge Duration</th><td id="mustchargeduration">Charge Duration</td></tr>
+                <tr><th>Charge Mode</th><td id="mustchargerule"></td></tr>
+                <tr><th style="color: crimson">After Hours</th><td id="afterhours">false</td></tr>
+                <tr><th style="color: crimson">Peak Mode</th><td id="peakrule">false</td></tr>-->
+
                 <tr><th>Written</th><td id="tarifftime">1/1/2025</td></tr>
                 <tr><th>Alternate</th><td id="altttime">1/1/2025</td></tr>
                 <tr><th>Installed</th><td id="schedtime">1/1/2025</td></tr>
@@ -963,7 +1098,9 @@
                     font-family: Courier New, Courier, monospace; font-weight: bold;
                     padding-left: 5px; padding-right: 5px">
                 <tr><th colspan="4">Current Schedule</th></tr>
-                <tr><th colspan="2">Updated</th><td id="tcnt" colspan="2">00:00:00</td></tr>
+                <tr><th rowspan="2">Clock</th><td>Browser</td><td id="tcnt" colspan="2">00:00:00</td></tr>
+                <tr><td>Envoy</td><td id="envoytime" colspan="2">00:00:00</td></tr>
+                <tr><th colspan="2" style="color: seagreen">Mode Key</th><td colspan="2" id="sett">sett</td></tr>
             </table>
         </div>
     </div>
