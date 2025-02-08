@@ -3,7 +3,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>Local Envoy Live Monitor v0.1.2</title>
+    <title>Local Envoy Live Monitor v0.1.3</title>
 </head>
 <body>
     <script>
@@ -1109,7 +1109,7 @@
 
     <div id="information" style="display: none">
         <div style="padding-left: 5px; font-family: Courier New, Courier, monospace; float: right">
-            <p>Local Enphase Live Monitor by Erik Eidt (c) 2025, version 0.1.1</p>
+            <p>Local Enphase Live Monitor by Erik Eidt (c) 2025, version 0.1.3</p>
             <p>Original location: https://github.com/; License is MIT Open Source.</p>
             <p>Live at https://erikeidt.github.io/LocalEnvoyLiveMonitor.html</p>
             <ul>
@@ -1143,14 +1143,14 @@
             <p>
                 Known Tariff Schedule Mode Keys are:
                 <div style:"padding-left: 20px">
-                    <table>
-                        <tr><td>ID</td><td>Idle (i.e. no charge/discharge)</td></tr>
-                        <tr><td>ZN</td><td>Zero Net (i.e. self consumption behavior)</td></tr>
-                        <tr><td>CG</td><td>Charge From Grid</td></tr>
-                        <tr><td>DG</td><td>Discharge to Grid</td></tr>
+                    <table border="1" style="border-collapse: collapse; text-align: center">
+                        <tr><td>ID</td><td>Idle</td><td>no charge/discharge</td></tr>
+                        <tr><td>ZN</td><td>Zero Net</td><td>solar priority home, battery, grid<br />battery priority home or charge<br />(self consumption behavior)</td></tr>
+                        <tr><td>CG</td><td>Charge From Grid</td><td>and from Solar<br /> home load from grid</td></tr>
+                        <tr><td>DG</td><td>Discharge to Grid</td><td>and discharge for home load</td></tr>
                         <tr><td>ND</td><td>No Discharge</td></tr>
-                        <tr><td>DL</td><td>Discharge to Load</td></tr>
-                        <tr><td>CP</td><td>Charge From PV</td></tr>
+                        <tr><td>DL</td><td>Discharge to Load</td><td>solar to grid<br />battery to home load</td></tr>
+                        <tr><td>CP</td><td>Charge From PV</td><td>solar to charge battery<br />grid to power home load</td></tr>
                         <tr><td>HEMS Discharge</td><td></td></tr>
                         <tr><td>HEMS Charge</td><td></td></tr>
                         <tr><td>FCR</td><td>Charge or discharge</td></tr>
