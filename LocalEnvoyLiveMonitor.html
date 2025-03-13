@@ -3,7 +3,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>Local Envoy Live Monitor v0.1.3</title>
+    <title>Local Envoy Live Monitor v0.1.6</title>
 </head>
 <body>
     <script>
@@ -73,6 +73,7 @@
         var tariffTimeElem;
         var altTariffTimeElem;
         var instalTimeElem;
+        var batteryChartElem;
 
         var gridStatusElem;
         var envoyTimeElem;
@@ -95,6 +96,7 @@
                     shb.style.display = "none";
                 }
                 tariffChartElem = document.getElementById("tarifftab");
+                batteryChartElem = document.getElementById("batterytab");
 
                 txt = document.getElementById("txt");
                 cnt = document.getElementById("cnt");
@@ -355,10 +357,21 @@
                 var chrg = 0.0;
                 var socp = 0.0;
 
+                var r = batteryChartElem.tBodies[0].rows;
+                while (r.length > 2)
+                    batteryChartElem.deleteRow(2);
+
                 for (var i = 0; i < count; i++) {
                     var dev = devs[i];
                     chrg += parseFloat(dev.real_power_mw);
                     socp += parseFloat(dev.soc);
+
+                    var r2 = batteryChartElem.insertRow();
+                    var socCol = r2.insertCell();
+                    socCol.innerHTML = ("&nbsp;" + dev.soc).padStart(4, ' ') + "%&nbsp;";
+                    var stateCol = r2.insertCell();
+                    var ss = dev.real_power_mw / -1000;
+                    stateCol.innerHTML = ((ss > 0 ? "&nbsp;+" : "&nbsp;") + ss.toFixed(0)).padStart(5, ' ') + "&nbsp;";
                 }
 
                 socp /= count;
@@ -694,8 +707,8 @@
                     var nowSet = "";
 
                     var r = tariffChartElem.tBodies[0].rows;
-                    while (r.length > 3)
-                        tariffChartElem.deleteRow(3);
+                    while (r.length > 2)
+                        tariffChartElem.deleteRow(2);
 
                     for (var i = 0; i < setting.length; i++) {
                         var oneSet = setting[i];
@@ -895,24 +908,30 @@
             hideShow("information", "hideshowinfo", "Hide About", "About");
         }
 
+        function hideShowMenu() {
+            hideShow("menu", "hideshowmenu", "Hide Menu", "Show Menu");
+        }
+
     </script>
 
-    <button onclick="startMonitoring()">Start All</button>
-    <button onclick="startProductionConsumptionMonitoring()">Start Solar</button>
-    <button onclick="startBatteryMonitoring()">Start Battery</button>&nbsp;
-    <button onclick="startTariffMonitoring();">Start Tariff</button>&nbsp;
-    <button onclick="startGridMonitoring();">Start Grid</button>&nbsp;
-    <button onclick="stopMonitoring()">Stop All</button>
-    <button id="hideshowchart" onclick="hideShowChart()">Show Chart</button>
-    <button id="hideshowsvg" onclick="hideShowSvg()">Hide SVG</button>
-    <button id="hideshowinfo" onclick="hideShowInfo()">About</button>
+    <div id="menu">
+        <button onclick="startMonitoring()">Start All</button>
+        <button onclick="startProductionConsumptionMonitoring()">Start Solar</button>
+        <button onclick="startBatteryMonitoring()">Start Battery</button>&nbsp;
+        <button onclick="startTariffMonitoring();">Start Tariff</button>&nbsp;
+        <button onclick="startGridMonitoring();">Start Grid</button>&nbsp;
+        <button onclick="stopMonitoring()">Stop All</button>
+        <button id="hideshowchart" onclick="hideShowChart()">Show Chart</button>
+        <button id="hideshowsvg" onclick="hideShowSvg()">Hide SVG</button>
+        <button id="hideshowmenu" onclick="hideShowMenu()">Hide Menu</button>
+        <button id="hideshowinfo" onclick="hideShowInfo()">About</button>
+    </div>
+    <!--    <div style="font-size: xx-small">&nbsp;</div>-->
 
-    <br />
     <div id="showhidebearer">
         <p>Enter Enphase Entrez Bearer Token</p>
         <input id="bearer" />
     </div>
-    <br />
 
     <table id="tablechart" border="1" cellpadding="2" cellspacing="1" width="100%"
            style="display: none; border-collapse: collapse; text-align: center; font-size: x-large;
@@ -963,104 +982,99 @@
         </tr>
     </table>
 
-    <br />
+    <div style="display: flex; margin: 2px" width="100%">
+        <svg id="svgchart" height="360" width="360" font-family="Courier New, Courier, monospace" font-size="medium">
+            <defs>
+                <marker id="arwhead" markerWidth="14" markerHeight="14" refX="1" refY="5" orient="auto" markerUnits="userSpaceOnUse" stroke="context-stroke" fill="context-stroke">
+                    <path d="M 1 1 L 1 9 L 12 5 z" />
+                </marker>
+            </defs>
 
-    <div style="display: flex" width="100%">
-        <div>
-            <svg id="svgchart" height="360" width="360" font-family="Courier New, Courier, monospace" font-size="medium">
-                <defs>
-                    <marker id="arwhead" markerWidth="14" markerHeight="14" refX="1" refY="5" orient="auto" markerUnits="userSpaceOnUse" stroke="context-stroke" fill="context-stroke">
-                        <path d="M 1 1 L 1 9 L 12 5 z" />
-                    </marker>
-                </defs>
+            <circle cx="52" cy="180" r="42" fill="crimson" />
+            <text x="41" y="205" stroke="WhiteSmoke" style="font-size: xx-small; font-style: italic">Grid</text>
 
-                <circle cx="52" cy="180" r="42" fill="crimson" />
-                <text x="41" y="205" stroke="WhiteSmoke" style="font-size: xx-small; font-style: italic">Grid</text>
+            <circle cx="180" cy="52" r="42" fill="#E6C300" />
+            <text x="166" y="77" stroke="WhiteSmoke" style="font-size: xx-small; font-style: italic">Solar</text>
 
-                <circle cx="180" cy="52" r="42" fill="#E6C300" />
-                <text x="166" y="77" stroke="WhiteSmoke" style="font-size: xx-small; font-style: italic">Solar</text>
+            <circle cx="298" cy="180" r="42" fill="seagreen" />
+            <text x="288" y="205" stroke="WhiteSmoke" style="font-size: xx-small; font-style: italic">Home</text>
 
-                <circle cx="298" cy="180" r="42" fill="seagreen" />
-                <text x="288" y="205" stroke="WhiteSmoke" style="font-size: xx-small; font-style: italic">Home</text>
+            <circle cx="180" cy="308" r="42" fill="#4078A5" />
+            <text x="162" y="333" stroke="WhiteSmoke" style="font-size: xx-small; font-style: italic">Battery</text>
 
-                <circle cx="180" cy="308" r="42" fill="#4078A5" />
-                <text x="162" y="333" stroke="WhiteSmoke" style="font-size: xx-small; font-style: italic">Battery</text>
+            <!--<path d="M 52 180 L 180 52" stroke="black" />
+            <path d="M 180 52 L 298 180" stroke="black" />
+            <path d="M 298 180 L 180 308" stroke="black" />
+            <path d="M 180 308 L 52 180" stroke="black" />-->
+            <!-- grid to home -->
+            <path id="vl.g.h" d="M 94 180 L 243 180" stroke="crimson" stroke-width="3px" marker-end="url(#arwhead)" />
 
-                <!--<path d="M 52 180 L 180 52" stroke="black" />
-                <path d="M 180 52 L 298 180" stroke="black" />
-                <path d="M 298 180 L 180 308" stroke="black" />
-                <path d="M 180 308 L 52 180" stroke="black" />-->
-                <!-- grid to home -->
-                <path id="vl.g.h" d="M 94 180 L 243 180" stroke="crimson" stroke-width="3px" marker-end="url(#arwhead)" />
+            <!-- solar to grid -->
+            <path id="vl.s.g" d="M 150 82 L 91 141" stroke="#E6C300" stroke-width="3px" marker-end="url(#arwhead)" />
+            <!-- solar battery -->
+            <path id="vl.s.b" d="M 180 94 L 180 253" stroke="#E6C300" stroke-width="3px" marker-end="url(#arwhead)" />
+            <!-- solar to home -->
+            <path id="vl.s.h" d="M 209 83 L 261 140" stroke="#E6C300" stroke-width="3px" marker-end="url(#arwhead)" />
 
-                <!-- solar to grid -->
-                <path id="vl.s.g" d="M 150 82 L 91 141" stroke="#E6C300" stroke-width="3px" marker-end="url(#arwhead)" />
-                <!-- solar battery -->
-                <path id="vl.s.b" d="M 180 94 L 180 253" stroke="#E6C300" stroke-width="3px" marker-end="url(#arwhead)" />
-                <!-- solar to home -->
-                <path id="vl.s.h" d="M 209 83 L 261 140" stroke="#E6C300" stroke-width="3px" marker-end="url(#arwhead)" />
+            <!-- battery to home -->
+            <path id="vl.b.h" d="M 209 277 L 261 220" stroke="#4078A5" stroke-width="3px" marker-end="url(#arwhead)" />
 
-                <!-- battery to home -->
-                <path id="vl.b.h" d="M 209 277 L 261 220" stroke="#4078A5" stroke-width="3px" marker-end="url(#arwhead)" />
+            <!-- numbers on paths between consumers & producers -->
+            <!-- grid to battery -->
+            <g id="vl.g.b">
+                <path d="M 82 210 L 141 269" stroke="crimson" stroke-width="3px" marker-end="url(#arwhead)" />
+                <rect id="vb.g.b" x="72" y="225" width="64" height="16" fill="white" />
+                <text id="v.g.b" x="80" y="238" stroke="crimson">00000</text>
+            </g>
 
-                <!-- numbers on paths between consumers & producers -->
-                <!-- grid to battery -->
-                <g id="vl.g.b">
-                    <path d="M 82 210 L 141 269" stroke="crimson" stroke-width="3px" marker-end="url(#arwhead)" />
-                    <rect id="vb.g.b" x="72" y="225" width="64" height="16" fill="white" />
-                    <text id="v.g.b" x="80" y="238" stroke="crimson">00000</text>
-                </g>
+            <!-- battery to grid -->
+            <g id="vl.b.g">
+                <path d="M 150 278 L 91 219" stroke="#4078A5" stroke-width="3px" marker-end="url(#arwhead)" />
+                <rect id="vb.b.g" x="91" y="244" width="64" height="16" fill="white" />
+                <text id="v.b.g" x="100" y="257" stroke="#4078A5">00000</text>
+            </g>
 
-                <!-- battery to grid -->
-                <g id="vl.b.g">
-                    <path d="M 150 278 L 91 219" stroke="#4078A5" stroke-width="3px" marker-end="url(#arwhead)" />
-                    <rect id="vb.b.g" x="91" y="244" width="64" height="16" fill="white" />
-                    <text id="v.b.g" x="100" y="257" stroke="#4078A5">00000</text>
-                </g>
+            <rect id="vb.g.h" x="115" y="171" width="50" height="16" fill="white" />
+            <text id="v.g.h" x="116" y="184" stroke="crimson">00000</text>
 
-                <rect id="vb.g.h" x="115" y="171" width="50" height="16" fill="white" />
-                <text id="v.g.h" x="116" y="184" stroke="crimson">00000</text>
+            <rect id="vb.s.h" x="198" y="99" width="64" height="16" fill="white" />
+            <text id="v.s.h" x="206" y="112" stroke="#E6C300">00000</text>
 
-                <rect id="vb.s.h" x="198" y="99" width="64" height="16" fill="white" />
-                <text id="v.s.h" x="206" y="112" stroke="#E6C300">00000</text>
+            <rect id="vb.s.b" x="148" y="119" width="64" height="16" fill="white" />
+            <text id="v.s.b" x="156" y="132" stroke="#E6C300">00000</text>
 
-                <rect id="vb.s.b" x="148" y="119" width="64" height="16" fill="white" />
-                <text id="v.s.b" x="156" y="132" stroke="#E6C300">00000</text>
+            <rect id="vb.s.g" x="91" y="99" width="64" height="16" fill="white" />
+            <text id="v.s.g" x="100" y="112" stroke="#E6C300">00000</text>
 
-                <rect id="vb.s.g" x="91" y="99" width="64" height="16" fill="white" />
-                <text id="v.s.g" x="100" y="112" stroke="#E6C300">00000</text>
+            <rect id="vb.b.h" x="198" y="244" width="64" height="16" fill="white" />
+            <text id="v.b.h" x="206" y="257" stroke="#4078A5">00000</text>
 
-                <rect id="vb.b.h" x="198" y="244" width="64" height="16" fill="white" />
-                <text id="v.b.h" x="206" y="257" stroke="#4078A5">00000</text>
+            <text id="v.soc" x="224" y="338" stroke="#4078A5">100%</text>
 
-                <text id="v.soc" x="224" y="338" stroke="#4078A5">100%</text>
+            <!-- consumers & producers-->
+            <rect x="14" y="172" width="76" height="18" rx="6" fill="white" />
+            <text id="v.grid" x="20" y="186" stroke="crimson">- 00000</text>
 
-                <!-- consumers & producers-->
-                <rect x="14" y="172" width="76" height="18" rx="6" fill="white" />
-                <text id="v.grid" x="20" y="186" stroke="crimson">- 00000</text>
+            <rect x="142" y="44" width="76" height="18" rx="6" fill="white" />
+            <text id="v.solar" x="148" y="58" stroke="#E6C300">- 00000</text>
 
-                <rect x="142" y="44" width="76" height="18" rx="6" fill="white" />
-                <text id="v.solar" x="148" y="58" stroke="#E6C300">&nbsp;00000</text>
+            <rect x="260" y="172" width="76" height="18" rx="6" fill="white" />
+            <text id="v.home" x="266" y="186" stroke="seagreen">+ 00000</text>
 
-                <rect x="260" y="172" width="76" height="18" rx="6" fill="white" />
-                <text id="v.home" x="266" y="186" stroke="seagreen">&nbsp;00000</text>
+            <rect x="142" y="300" width="76" height="18" rx="6" fill="white" />
+            <text id="v.batt" x="148" y="314" stroke="#4078A5">- 00000</text>
 
-                <rect x="142" y="300" width="76" height="18" rx="6" fill="white" />
-                <text id="v.batt" x="148" y="314" stroke="#4078A5">- 00000</text>
+            <!--<rect x="45" y="152" width="15" height="15" fill="white" />
+            <text id="v.imex" x="48" y="164" stroke="crimson">+</text>
 
-                <!--<rect x="45" y="152" width="15" height="15" fill="white" />
-                <text id="v.imex" x="48" y="164" stroke="crimson">+</text>
+            <rect x="173" y="280" width="15" height="15" fill="white" />
+            <text id="v.chrg" x="176" y="292" stroke="#4078A5">+</text>-->
 
-                <rect x="173" y="280" width="15" height="15" fill="white" />
-                <text id="v.chrg" x="176" y="292" stroke="#4078A5">+</text>-->
+        </svg>
 
-            </svg>
-
-        </div>
-
-        <div style="padding-left: 15px">
+        <div style="padding-left: 15px; padding-top: 5px">
             <table border="1" cellpadding="2" cellspacing="1"
-                   style="border-collapse: collapse; text-align: center; font-size: medium;
+                   style="border-collapse: collapse; text-align: center; font-size: small;
                     font-family: Courier New, Courier, monospace; font-weight: bold">
 
                 <tr><td id="cnt2" colspan="2">00:00:00</td></tr>
@@ -1069,7 +1083,7 @@
                 <tr><th style="color: seagreen">Envoy Vers</th><td id="envoyvers"></td></tr>
             </table>
 
-            <br />
+            <div style="font-size: xx-small">&nbsp;</div>
 
             <table border="1" cellpadding="4"
                    style="padding-left: 20px; border-collapse: collapse; text-align: center; font-size: small;
@@ -1088,19 +1102,37 @@
                 <tr><th style="color: crimson">After Hours</th><td id="afterhours">false</td></tr>
                 <tr><th style="color: crimson">Peak Mode</th><td id="peakrule">false</td></tr>-->
 
-                <tr><th>Written</th><td id="tarifftime">1/1/2025</td></tr>
-                <tr><th>Alternate</th><td id="altttime">1/1/2025</td></tr>
-                <tr><th>Installed</th><td id="schedtime">1/1/2025</td></tr>
+                <tr style="display: none"><th>Written</th><td id="tarifftime">1/1/2025</td></tr>
+                <tr style="display: none"><th>Alternate</th><td id="altttime">1/1/2025</td></tr>
+                <tr style="display: none"><th>Installed</th><td id="schedtime">1/1/2025</td></tr>
             </table>
-            <br />
+
+            <div style="font-size: xx-small">&nbsp;</div>
+
+            <table border="1" cellpadding="3"
+                   style="padding-left: 20px; border-collapse: collapse; text-align: center; font-size: small;
+                    font-family: Courier New, Courier, monospace; font-weight: bold;
+                    padding-left: 5px; padding-right: 5px; color:blue">
+                <tr><th rowspan="2">Clock</th><td>Browser</td><td id="tcnt">00:00:00</td></tr>
+                <tr><td>Envoy</td><td id="envoytime">00:00:00</td></tr>
+            </table>
+
+            <div style="font-size: xx-small">&nbsp;</div>
+
             <table id="tarifftab" border="1" cellpadding="3"
                    style="padding-left: 20px; border-collapse: collapse; text-align: center; font-size: small;
                     font-family: Courier New, Courier, monospace; font-weight: bold;
-                    padding-left: 5px; padding-right: 5px">
+                    padding-left: 5px; padding-right: 5px; color: #864300">
                 <tr><th colspan="4">Current Schedule</th></tr>
-                <tr><th rowspan="2">Clock</th><td>Browser</td><td id="tcnt" colspan="2">00:00:00</td></tr>
-                <tr><td>Envoy</td><td id="envoytime" colspan="2">00:00:00</td></tr>
-                <tr><th colspan="2" style="color: seagreen">Mode Key</th><td colspan="2" id="sett">sett</td></tr>
+                <tr style="display: none"><th colspan="2" style="color: seagreen">Mode Key</th><td colspan="2" id="sett">sett</td></tr>
+            </table>
+
+        </div>
+
+        <div style="padding-left: 40px; padding-top: 10px">
+            <table id="batterytab" border="1" style="border-collapse: collapse; text-align: right; font-size: medium; font-family: Courier New, Courier, monospace; padding-left: 5px; padding-right: 5px; color: #4078A5 ">
+                <tr><th colspan="2" style="text-align: center">Batteries</th></tr>
+                <tr><th style="text-align: center">SoC</th><th style="text-align: center">+/-</th></tr>
             </table>
         </div>
     </div>
@@ -1109,7 +1141,7 @@
 
     <div id="information" style="display: none">
         <div style="padding-left: 5px; font-family: Courier New, Courier, monospace; float: right">
-            <p>Local Enphase Live Monitor by Erik Eidt (c) 2025, version 0.1.3</p>
+            <p>Local Enphase Live Monitor by Erik Eidt (c) 2025, version 0.1.6</p>
             <p>Original location: https://github.com/; License is MIT Open Source.</p>
             <p>Live at https://erikeidt.github.io/LocalEnvoyLiveMonitor.html</p>
             <ul>
