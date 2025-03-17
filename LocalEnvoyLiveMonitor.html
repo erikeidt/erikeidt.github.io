@@ -3,7 +3,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>Local Envoy Live Monitor v0.1.6</title>
+    <title>Local Envoy Live Monitor v0.1.7.1</title>
 </head>
 <body>
     <script>
@@ -368,10 +368,10 @@
 
                     var r2 = batteryChartElem.insertRow();
                     var socCol = r2.insertCell();
-                    socCol.innerHTML = ("&nbsp;" + dev.soc).padStart(4, ' ') + "%&nbsp;";
+                    socCol.innerHTML = padNbsp(dev.soc + "%", 4);
                     var stateCol = r2.insertCell();
                     var ss = dev.real_power_mw / -1000;
-                    stateCol.innerHTML = ((ss > 0 ? "&nbsp;+" : "&nbsp;") + ss.toFixed(0)).padStart(5, ' ') + "&nbsp;";
+                    stateCol.innerHTML = padNbsp((ss > 0 ? "+" : "") + ss.toFixed(0), 5);
                 }
 
                 socp /= count;
@@ -400,6 +400,14 @@
             }
 
             btXhr.send();
+        }
+
+        function padNbsp(str, len) {
+            var count = len - str.length;
+            while (--count >= 0) {
+                str = "&nbsp;" + str;
+            }
+            return "&nbsp;" + str + "&nbsp";
         }
 
         function getEnvoyInfo() {
@@ -1129,8 +1137,8 @@
 
         </div>
 
-        <div style="padding-left: 40px; padding-top: 10px">
-            <table id="batterytab" border="1" style="border-collapse: collapse; text-align: right; font-size: medium; font-family: Courier New, Courier, monospace; padding-left: 5px; padding-right: 5px; color: #4078A5 ">
+        <div style="padding-left: 25px; padding-top: 10px">
+            <table id="batterytab" border="1" style="border-collapse: collapse; text-align: right; font-size: medium; font-weight: bold; font-family: Courier New, Courier, monospace; padding-left: 5px; padding-right: 5px; color: #4078A5 ">
                 <tr><th colspan="2" style="text-align: center">Batteries</th></tr>
                 <tr><th style="text-align: center">SoC</th><th style="text-align: center">+/-</th></tr>
             </table>
@@ -1141,7 +1149,7 @@
 
     <div id="information" style="display: none">
         <div style="padding-left: 5px; font-family: Courier New, Courier, monospace; float: right">
-            <p>Local Enphase Live Monitor by Erik Eidt (c) 2025, version 0.1.6</p>
+            <p>Local Enphase Live Monitor by Erik Eidt (c) 2025, version 0.7</p>
             <p>Original location: https://github.com/; License is MIT Open Source.</p>
             <p>Live at https://erikeidt.github.io/LocalEnvoyLiveMonitor.html</p>
             <ul>
