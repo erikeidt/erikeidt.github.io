@@ -3,7 +3,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>Local Envoy Live Monitor v0.1.7.1</title>
+    <title>Local Envoy Live Monitor v0.2.0</title>
 </head>
 <body>
     <script>
@@ -67,13 +67,14 @@
         var modeElem;
         var reserveElem;
         var shutoffElem;
-        var settElem;
+        //var settElem;
 
         var tariffChartElem;
         var tariffTimeElem;
         var altTariffTimeElem;
         var instalTimeElem;
         var batteryChartElem;
+        var modeKeyChartElem;
 
         var gridStatusElem;
         var envoyTimeElem;
@@ -97,6 +98,7 @@
                 }
                 tariffChartElem = document.getElementById("tarifftab");
                 batteryChartElem = document.getElementById("batterytab");
+                modeKeyChartElem = document.getElementById("modekeys");
 
                 txt = document.getElementById("txt");
                 cnt = document.getElementById("cnt");
@@ -155,7 +157,7 @@
                 modeElem = document.getElementById("mode");
                 reserveElem = document.getElementById("reserve");
                 shutoffElem = document.getElementById("shutoff");
-                settElem = document.getElementById("sett");
+                //settElem = document.getElementById("sett");
 
                 tariffTimeElem = document.getElementById("tarifftime");
                 schedTimeElem = document.getElementById("schedtime");
@@ -358,7 +360,7 @@
                 var socp = 0.0;
 
                 var r = batteryChartElem.tBodies[0].rows;
-                while (r.length > 2)
+                while (r.length >= 3)
                     batteryChartElem.deleteRow(2);
 
                 for (var i = 0; i < count; i++) {
@@ -452,9 +454,9 @@
                 var dc = data.documentElement;
                 var tdc = dc.getElementsByTagName("time");
                 var t = tdc[0].childNodes[0].nodeValue;
-                envoyTimeElem.innerHTML = new Date(t * 1000).toLocaleTimeString("en-GB");
+                envoyTimeElem.innerHTML = "&nbsp;" + new Date(t * 1000).toLocaleTimeString("en-GB") + "&nbsp;";
                 tdc = dc.getElementsByTagName("software");
-                envoyVersElem.innerHTML = tdc[0].childNodes[0].nodeValue;
+                envoyVersElem.innerHTML = "&nbsp;" + tdc[0].childNodes[0].nodeValue + "&nbsp;";
             }
 
             eiXhr.send();
@@ -500,7 +502,7 @@
                     return;
                 }
                 gmto = setTimeout(startGridMonitoring, 10000);
-                gridStatusElem.innerHTML = data.mains_oper_state === "closed" ? "connected" : "disconnected";
+                gridStatusElem.innerHTML = data.mains_oper_state === "closed" ? "&nbsp;connected&nbsp;" : "&nbsp;disconnected&nbsp;";
             }
 
             gmXhr.send();
@@ -665,12 +667,13 @@
 
                 var schedule = data.schedule;
                 var mode = schedule.battery_mode;
-                if (mode == "economy") mode = "Savings";
-                else if (mode == "self-consumption") mode = "Self-Consumption";
-                else if (mode == "full-backup") mode = "Full Backup";
+                if (mode == "economy") mode = "&nbsp;Savings&nbsp;";
+                else if (mode == "self-consumption") mode = "&nbsp;Self-Consumption&nbsp;";
+                else if (mode == "full-backup") mode = "&nbsp;Full Backup&nbsp;";
 
                 modeElem.innerHTML = mode;
-                reserveElem.innerHTML = schedule.reserved_soc + "%";
+                var reserveLevel = schedule.reserved_soc + "%";
+                reserveElem.innerHTML = reserveLevel;
                 shutoffElem.innerHTML = schedule.very_low_soc + "%";
 
                 var tartar = data.tariff;
@@ -715,8 +718,14 @@
                     var nowSet = "";
 
                     var r = tariffChartElem.tBodies[0].rows;
-                    while (r.length > 2)
-                        tariffChartElem.deleteRow(2);
+                    while (r.length > 1)
+                        tariffChartElem.deleteRow(1);
+
+                    if (nowTimeMinutes < 10) {
+                        r = modeKeyChartElem.tBodies[0].rows
+                        while (r.length > 1)
+                            modeKeyChartElem.deleteRow(1);
+                    }
 
                     for (var i = 0; i < setting.length; i++) {
                         var oneSet = setting[i];
@@ -741,12 +750,36 @@
                         nnooww.innerHTML = currentPeriod ? "&nbsp;&#x2714;&nbsp;" : "";
                     }
 
-                    settElem.innerHTML = nowSet;
-                    tcntElem.innerHTML = nowItem.toLocaleTimeString("en-GB");
+                    //settElem.innerHTML = nowSet;
+                    tcntElem.innerHTML = "&nbsp;" + nowItem.toLocaleTimeString("en-GB") + "&nbsp;";
+
+                    var lastModeKeyRow = modeKeyChartElem.tBodies[0].rows;
+                    var lastModeKey = "";
+                    var lastReserveLevel = "";
+                    var lastModeKeyIndex = lastModeKeyRow.length;
+                    if (lastModeKeyIndex >= 2) {
+                        var lastRow = lastModeKeyRow[lastModeKeyIndex - 1];
+                        lastModeKey = lastRow.childNodes[1].innerHTML;
+                        lastReserveLevel = lastRow.childNodes[2].innerHTML
+                    }
+
+                    nowSet = "&nbsp;" + nowSet + "&nbsp;";
+                    reserveLevel = "&nbsp;" + reserveLevel + "&nbsp;";
+                    if (nowSet !== lastModeKey || lastReserveLevel != reserveLevel) {
+                        var r3 = modeKeyChartElem.insertRow();
+                        var c1 = r3.insertCell();
+                        c1.innerHTML = "&nbsp;" + makeTimeStringFromTimeMinutes(nowTimeMinutes) + "&nbsp;";
+                        var c2 = r3.insertCell();
+                        c2.innerHTML = nowSet;
+                        var c3 = r3.insertCell();
+                        c3.innerHTML = reserveLevel;
+                        var c4 = r3.insertCell();
+                        c4.innerHTML = "&nbsp;" + v_soch.innerHTML + "&nbsp;";
+                    }
                 }
 
                 // wait until next time period
-                var roundToNearestSecond = 60; // round to 1 minute
+                var roundToNearestSecond = 20; // round to 1/3 minute
                 var nowSeconds = nowMinutes * 60 + nowItem.getSeconds();
                 var delay = (Math.trunc(nowSeconds / roundToNearestSecond) + 1) * roundToNearestSecond - nowSeconds;
                 delay *= 1000;
@@ -1081,26 +1114,26 @@
         </svg>
 
         <div style="padding-left: 15px; padding-top: 5px">
-            <table border="1" cellpadding="2" cellspacing="1"
+            <table border="1" cellpadding="2"
                    style="border-collapse: collapse; text-align: center; font-size: small;
                     font-family: Courier New, Courier, monospace; font-weight: bold">
 
                 <tr><td id="cnt2" colspan="2">00:00:00</td></tr>
                 <tr><th style="color: seagreen">Grid</th><td id="gridstat"></td></tr>
-                <!--<tr><th style="color: seagreen">Envoy Time</th><td id="envoytime"></td></tr>-->
-                <tr><th style="color: seagreen">Envoy Vers</th><td id="envoyvers"></td></tr>
+                <!--<tr><th style="color: seagreen">&nbsp;Envoy Time&nbsp;</th><td id="envoytime"></td></tr>-->
+                <tr><th style="color: seagreen">&nbsp;Envoy Vers&nbsp;</th><td id="envoyvers"></td></tr>
             </table>
 
             <div style="font-size: xx-small">&nbsp;</div>
 
-            <table border="1" cellpadding="4"
+            <table border="1" cellpadding="2"
                    style="padding-left: 20px; border-collapse: collapse; text-align: center; font-size: small;
                     font-family: Courier New, Courier, monospace; font-weight: bold;
                     padding-left: 5px; padding-right: 5px">
-                <tr><th colspan="2">Tariff</th></tr>
-                <tr><th style="color: #E6C300">Mode</th><td id="mode">mode</td></tr>
-                <tr><th style="color: #4078A5">Reserve</th><td id="reserve">reserve</td></tr>
-                <tr><th style="color: crimson">Shutoff</th><td id="shutoff">shutoff</td></tr>
+                <tr><th colspan="2">&nbsp;Tariff&nbsp;</th></tr>
+                <tr><th style="color: #E6C300">&nbsp;Mode&nbsp;</th><td id="mode"></td></tr>
+                <tr><th style="color: #4078A5">&nbsp;Reserve&nbsp;</th><td id="reserve"></td></tr>
+                <tr><th style="color: crimson">&nbsp;Shutoff&nbsp;</th><td id="shutoff"></td></tr>
 
                 <!--<tr><th style="color: crimson" rowspan="5">Charge</th><th>By Import</th><td id="gridcharge">false</td></tr>
                 <tr><th style="color: crimson">Allow Export</th><td id="griddischarge">false</td></tr>
@@ -1117,36 +1150,38 @@
 
             <div style="font-size: xx-small">&nbsp;</div>
 
-            <table border="1" cellpadding="3"
+            <table border="1" cellpadding="2"
                    style="padding-left: 20px; border-collapse: collapse; text-align: center; font-size: small;
                     font-family: Courier New, Courier, monospace; font-weight: bold;
                     padding-left: 5px; padding-right: 5px; color:blue">
-                <tr><th rowspan="2">Clock</th><td>Browser</td><td id="tcnt">00:00:00</td></tr>
-                <tr><td>Envoy</td><td id="envoytime">00:00:00</td></tr>
+                <tr><th rowspan="2">&nbsp;Clock&nbsp;</th><td>&nbsp;Browser&nbsp;</td><td id="tcnt"></td></tr>
+                <tr><td>&nbsp;Envoy&nbsp;</td><td id="envoytime"></td></tr>
             </table>
 
             <div style="font-size: xx-small">&nbsp;</div>
 
-            <table id="tarifftab" border="1" cellpadding="3"
-                   style="padding-left: 20px; border-collapse: collapse; text-align: center; font-size: small;
+            <table id="tarifftab" border="1" cellpadding="2"
+                   style="border-collapse: collapse; text-align: center; font-size: small;
                     font-family: Courier New, Courier, monospace; font-weight: bold;
                     padding-left: 5px; padding-right: 5px; color: #864300">
-                <tr><th colspan="4">Current Schedule</th></tr>
-                <tr style="display: none"><th colspan="2" style="color: seagreen">Mode Key</th><td colspan="2" id="sett">sett</td></tr>
+                <tr><th colspan="4">&nbsp;Current Schedule&nbsp;</th></tr>
             </table>
 
         </div>
 
-        <div style="padding-left: 25px; padding-top: 10px">
-            <table id="batterytab" border="1" style="border-collapse: collapse; text-align: right; font-size: medium; font-weight: bold; font-family: Courier New, Courier, monospace; padding-left: 5px; padding-right: 5px; color: #4078A5">
-                <tr><th colspan="2" style="text-align: center">Batteries</th></tr>
-                <tr><th style="text-align: center">SoC</th><th style="text-align: center">+/-</th></tr>
-            </table>
+        <div style="padding-left: 25px; padding-top: 5px">
+            <div>
+                <table id="batterytab" border="1" cellpadding="2" style="border-collapse: collapse; text-align: right; font-size: medium; font-weight: bold; font-family: Courier New, Courier, monospace; padding-left: 5px; padding-right: 5px; color: #4078A5">
+                    <tr><th colspan="2" style="text-align: center">&nbsp;Batteries&nbsp;</th></tr>
+                    <tr><th style="text-align: center">SoC</th><th style="text-align: center">+/-</th></tr>
+                </table>
+            </div>
 
-            <table id="modekeys" border="1" style="border-collapse: collapse; text-align: right; font-size: medium; font-weight: bold; font-family: Courier New, Courier, monospace; padding-left: 5px; padding-right: 5px; color: #4078A5">
-                <tr><th colspan="2" style="text-align: center">Mode Keys</th></tr>
-                <tr style="display: none"><th colspan="2" style="color: seagreen">Mode Key</th><td colspan="2" id="sett">sett</td></tr>
-            </table>
+            <div style="padding-top: 10px">
+                <table id="modekeys" border="1" cellpadding="2" style="border-collapse: collapse; text-align: right; font-size: small; font-weight: bold; font-family: Courier New, Courier, monospace; padding-left: 5px; padding-right: 5px; padding-top: 5px; color: #864300">
+                    <tr><th colspan="4" style="text-align: center">&nbsp;Modes&nbsp;</th></tr>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -1154,7 +1189,7 @@
 
     <div id="information" style="display: none">
         <div style="padding-left: 5px; font-family: Courier New, Courier, monospace; float: right">
-            <p>Local Enphase Live Monitor by Erik Eidt (c) 2025, version 0.1.7.1</p>
+            <p>Local Enphase Live Monitor by Erik Eidt (c) 2025, version 0.2.0</p>
             <p>Original location: https://github.com/; License is MIT Open Source.</p>
             <p>Live at https://erikeidt.github.io/LocalEnvoyLiveMonitor.html</p>
             <ul>
