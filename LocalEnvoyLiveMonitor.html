@@ -3,7 +3,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
-    <title>Local Envoy Live Monitor v0.2.0</title>
+    <title>Local Envoy Live Monitor v0.2.1</title>
 </head>
 <body>
     <script>
@@ -779,7 +779,7 @@
                 }
 
                 // wait until next time period
-                var roundToNearestSecond = 20; // round to 1/3 minute
+                var roundToNearestSecond = 60; // 20 to round to 1/3 minute, 60 for full minute
                 var nowSeconds = nowMinutes * 60 + nowItem.getSeconds();
                 var delay = (Math.trunc(nowSeconds / roundToNearestSecond) + 1) * roundToNearestSecond - nowSeconds;
                 delay *= 1000;
@@ -1189,7 +1189,7 @@
 
     <div id="information" style="display: none">
         <div style="padding-left: 5px; font-family: Courier New, Courier, monospace; float: right">
-            <p>Local Enphase Live Monitor by Erik Eidt (c) 2025, version 0.2.0</p>
+            <p>Local Enphase Live Monitor by Erik Eidt (c) 2025, version 0.2.1</p>
             <p>Original location: https://github.com/; License is MIT Open Source.</p>
             <p>Live at https://erikeidt.github.io/LocalEnvoyLiveMonitor.html</p>
             <ul>
