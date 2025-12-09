@@ -2,20 +2,25 @@
 
 ## Introduction 
 
+If you are interested in parsing expression, such as those found in C, namely having many levels of precedence among opertors, having paranthesis for grouping and for function calls, having unary operators and binary operators, techniques such as recursive decent and Pratt parsing offer a top-down approach.&nbsp; This article is about a rather simple alternative using a bottoms up approach.
+
+This bottoms-up technique does not use state tables, recursion, or backtracking.&nbsp; Parse state tables are replaced by two simple states &#8212; and these two states are reflected as two separated code sections (rather than as data tables).&nbsp; Instead of recursion, there are two simple stacks.&nbsp; It mixes nicely with any statement parser, such as one using recurive decent.
+
 This article describes the Double-E Infix Expression Parsing Method.
 
-This is a method for parsing infix expressions such as we find in most languages like C, having many levels of precedence, and a rich set of operators with static operator precedence.&nbsp; It is a bottoms-up approach to parsing similar to general purpose shift-reduce parsing, though dedicated to and simplified for infix expressions.
+This is a method for parsing infix expressions such as we find in most languages like C, having a rich set of operators with static operator precedence.&nbsp; It is a bottoms-up approach to parsing similar to general purpose shift-reduce parsing, though dedicated to and simplified for infix expressions.
 
-It does not use state tables, recursion, or backtracking.&nbsp; Parse state tables are replaced by two states, which are reflected in two code sections rather than as data tables.&nbsp; Instead of recursion, there are two simple stacks.&nbsp; It looks at each input item once and handles it directly &#8212; it does not re-examine input; it does not backtrack.&nbsp; It is industrial strength accepting what it should and rejecting what it shouldn't, yet as simple as the Shunting Yard algorithm (yet without the well-known limitations: operator support and error detection).
+This expression parser looks at each input item once and handles it directly &#8212; it does not re-examine input; it does not backtrack.&nbsp; It is industrial strength accepting what it should and rejecting what it shouldn't, yet as simple as the Shunting Yard algorithm (yet without its well-known limitations: operator support and error detection).
 
-It is also extensible, for example, with a simple change, what are errors in my implementation, can detect missing binary operator (e.g. juxtaposition as in `a b`), similarly missing operand `f(,x)`.
+It is also extensible, for example, with a simple change, what are errors in my implementation, can detect and handle missing binary operator (e.g. juxtaposition as in `a b`), and similarly missing operand `f(,x)`.
 
 The Double-E method uses two states and two stacks.
 
-The states are simple: Unary and Binary.&nbsp; 
+The states are simple: Unary and Binary. 
+
 To oversimplify, the Unary State says we're looking for a unary operator or an operand, and the Binary State says we're looking for a binary operator or the end of an expression.
 
-One of the two stacks is for Operators and the other for Operands.&nbsp; 
+Of the two stacks, one is for Operators and the other for Operands.&nbsp; 
 These stacks are intermediate storage used to hold operators and operands before their proper precedence and binding is known.
 
 An element of the Operator Stack is a simple enum describing an operator.&nbsp; The enum differentiates between unary negation and substraction, for example, so, the operator stack is a stack of true operators in the expression language, rather than input tokens.
