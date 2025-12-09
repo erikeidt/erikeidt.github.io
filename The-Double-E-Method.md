@@ -2,7 +2,7 @@
 
 ## Introduction 
 
-If you are interested in parsing expression, such as those found in C, namely having many levels of precedence among opertors, having paranthesis for grouping and for function calls, having unary operators and binary operators, techniques such as recursive decent and Pratt parsing offer a top-down approach.&nbsp; This article is about a rather simple alternative using a bottoms up approach.
+If you are interested in parsing expression, such as those found in C, namely having many levels of precedence among operators, having paranthesis for grouping and for function calls, having unary operators and binary operators, techniques such as recursive decent and Pratt parsing offer a top-down approach.&nbsp; This article is about a rather simple alternative using a bottoms up approach.
 
 This bottoms-up technique does not use state tables, recursion, or backtracking.&nbsp; Parse state tables are replaced by two simple states &#8212; and these two states are reflected as two separated code sections (rather than as data tables).&nbsp; Instead of recursion, there are two simple stacks.&nbsp; It mixes nicely with any statement parser, such as one using recurive decent.
 
