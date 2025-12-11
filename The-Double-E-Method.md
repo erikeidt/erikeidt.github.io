@@ -14,15 +14,15 @@ This technique does not use state tables, recursion, or backtracking.&nbsp; Pars
 
 This also approach mixes nicely with any statement parser, such as one using recurive decent.
 
-This expression parser looks at each input item once and handles it directly &#8212; it does not re-examine input; it does not backtrack.&nbsp; It is industrial strength accepting what it should and rejecting what it shouldn't, yet as simple as the Shunting Yard algorithm (without its well-known limitations of operator support and error detection).
+This expression parser looks at each input item once and handles it directly &#8212; it does not re-examine input; it does not backtrack.&nbsp; It is industrial strength accepting what it should and rejecting what it shouldn't, yet as readable as the Shunting Yard algorithm (though without its well-known limitations of operator support and error detection).
 
-The algorithm is also extensible, for example, with a simple change, what are errors issued in my implementation, can detect and handle missing binary operator (e.g. juxtaposition as in `a b`), and similarly missing operand `f(,x)`.
+The algorithm is also extensible, for example, with minor change, what are errors issued in my implementation, can detect and handle missing binary operator (e.g. juxtaposition as in `a b`), and similarly missing operand `f(,x)`.
 
 ---
 
 The Double-E method uses two states and two stacks.
 
-The states are simple: Unary and Binary. 
+The states are: Unary and Binary. 
 
 To oversimplify, the Unary State says we're looking for a unary operator or an operand, and the Binary State says we're looking for a binary operator or the end of an expression.
 
