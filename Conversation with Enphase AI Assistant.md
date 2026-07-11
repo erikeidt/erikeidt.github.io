@@ -19,7 +19,7 @@ Enphase Assistant:
 
 Based on your support case history, on June 17th your system started experiencing an issue where tariff settings were changing unexpectedly when your Gateway connected to the cloud.
 
-What Happened: Your peak hours shifted incorrectly from the correct 5*8 PM to 8*9:15 AM, which would have affected when your battery discharged and when you were charged peak rates.
+What Happened: Your peak hours shifted incorrectly from the correct 5-8 PM to 8-9:15 AM, which would have affected when your battery discharged and when you were charged peak rates.
 
 Root Cause: The issue was traced to your router's parental controls, which were limiting your Gateway's cloud connection to only once per day. This prevented your system from receiving proper updates and syncing tariff settings correctly.
 
@@ -63,7 +63,7 @@ Enphase Assistant:
 
 You're right to correct me thank you for that clarification. If parental controls were not enabled on June 17th, then the root cause identified in the case may not have been accurate.
 
-Looking back at the case summary, it appears the support team concluded that parental controls were the issue, but if that wasn't actually the case on that date, there may have been a different underlying cause for the tariff settings shifting from 5*8 PM to 8*9:15 AM.
+Looking back at the case summary, it appears the support team concluded that parental controls were the issue, but if that wasn't actually the case on that date, there may have been a different underlying cause for the tariff settings shifting from 5-8 PM to 8-9:15 AM.
 
 Do you know what actually caused the shift on June 17th? Or is this something that's still unclear?
 
