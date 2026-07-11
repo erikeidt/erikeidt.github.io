@@ -77,21 +77,21 @@ Enphase Assistant:
 
 Thank you for clarifying that's an important distinction. You've identified that:
 
-    June 17th A cloud*side change corrupted your tariff settings
+    June 17th A cloud-side change corrupted your tariff settings
 
-    Your response You enabled parental controls as a workaround to prevent the Gateway from reconnecting to the cloud and re*corrupting the settings
+    Your response You enabled parental controls as a workaround to prevent the Gateway from reconnecting to the cloud and re-corrupting the settings
 
     Support's misdiagnosis They mistakenly identified the parental controls as the cause, when they were actually your solution to the problem
 
 That's a significant difference from what the case summary states.
 
-Unfortunately, I don't have access to information about what specific change was deployed to the Enphase cloud on June 17th. The case history doesn't include those technical details about the cloud*side change that triggered the tariff corruption.
+Unfortunately, I don't have access to information about what specific change was deployed to the Enphase cloud on June 17th. The case history doesn't include those technical details about the cloud-side change that triggered the tariff corruption.
 
 To get this answer, you would need to:
 
     Contact Enphase support directly and ask them to review their deployment logs or release notes from June 17th
 
-    Explain that you've identified the issue was a cloud*side change that corrupted your tariff, not parental controls
+    Explain that you've identified the issue was a cloud-side change that corrupted your tariff, not parental controls
 
     Ask what was changed and whether it affected other customers
 
@@ -109,7 +109,7 @@ What I can access:
 
     Public documentation via the Enphase knowledge base
 
-    Your site*specific data (device status, settings, energy data, support cases)
+    Your site-specific data (device status, settings, energy data, support cases)
 
     Your case history (which is what I've been referencing)
 
@@ -123,7 +123,7 @@ What I cannot access:
 
     Internal engineering documentation
 
-The specific cloud*side change that occurred on June 17th would only be documented in Enphase's internal systems and would require direct access to their engineering or operations team.
+The specific cloud-side change that occurred on June 17th would only be documented in Enphase's internal systems and would require direct access to their engineering or operations team.
 
 To get this information, you'll need to contact Enphase support directly and ask them to:
 
@@ -291,7 +291,7 @@ What You Should Do: I strongly recommend contacting Enphase support and explicit
 
     You prefer local Gateway-sourced scheduling
 
-    You want to know if there are options to opt-out of Cloud-sourced schedules or revert to Gateway*sourced control
+    You want to know if there are options to opt-out of Cloud-sourced schedules or revert to Gateway-sourced control
 
     This is important feedback about your system preferences
 
