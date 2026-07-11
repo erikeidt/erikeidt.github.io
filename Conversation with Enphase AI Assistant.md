@@ -39,7 +39,7 @@ Are you still experiencing any issues with your tariff settings or peak hours si
 
 Enphase Assistant:
 
-According to your support case (Case #20218985), the cause of the tariff shift was:
+According to your support case (Case #xxxxxxxx), the cause of the tariff shift was:
 
 Router parental controls were limiting your Gateway's cloud connection to only once per day.
 
@@ -51,7 +51,7 @@ This prevented your Gateway from:
 
     Syncing your tariff settings correctly
 
-As a result, your peak hours shifted incorrectly from 5*8 PM to 8*9:15 AM.
+As a result, your peak hours shifted incorrectly from 5-8 PM to 8-9:15 AM.
 
 The Fix: Support adjusted your router settings to allow normal cloud connectivity for your Gateway, which restored proper tariff synchronization.
 
@@ -167,7 +167,7 @@ This will help clarify whether it was a widespread issue or isolated to your sys
 
 Would you like me to help you connect with a support agent to investigate this?
 
-- *me: I'm using https://envoy.local/admin/lib/tariff to automate battery behavior and switch between a self consumption behavior (so that the solar powers the home while charging the battery) and a 5pm*8pm peak behavior where the battery discharges to load and all solar goes to the grid.*
+- *me: I'm using https://envoy.local/admin/lib/tariff to automate battery behavior and switch between a self consumption behavior (so that the solar powers the home while charging the battery) and a 5-8pm peak behavior where the battery discharges to load and all solar goes to the grid.*
 
 Enphase Assistant:
 
