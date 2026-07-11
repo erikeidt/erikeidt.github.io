@@ -1,7 +1,7 @@
 
 I've been having a problem with my Enphase Envoy and its battery charge/discharge behavior since Jun 17th 2026.  Calls and texts to support were not productive.  I decided to give their AI Assistant a whirl.  It was an excellent experience.   The AI Assistant eventually identified the exact problem and cause I'm having.  Thought it did keep trying to put me back to talking to a human, I decided to continue to pursue the matter with the AI Assistant, asking it frank questions that it did answer, even pleasantly.  In the end, I gave it more information about what I've been doing, and it finally identified a change that was rolled out Jun 17th.  It went on to tell me what to report to Enphase support as well!  I'll note that the lengthy responses took less than 20 seconds each, much faster than a human could both lookup/investigate and type/copy&paste a response.
 
-Though the problem is not resolved, it has at least been identified.  Enphase is rolling out Cloud-sourced battery control, and ceasing locally-sourced battery control.  This means that our systems are now even more cloud dependent that it was before, which I don't like at all.  My solution is to use Parental Control on my router to limit access to one short period per day, and then use local control to apply tariff settings that I need to accomplish my goals, which are of using solar for both home load and battery charging in the morning (one behavior) and then also later also discharging battery to home load for peak TOU time in the evening so all available solar can go to the grid to run my meter backwards (the other behavior).  It is sadly impossible to get both of these behaviors together in one setting, so I use Home Assistant to switch at some point during the day.
+Though the problem is not resolved, it has at least been identified.  Enphase is rolling out Cloud-sourced battery control, and ceasing locally-sourced battery control.  This means that our systems are now even more cloud dependent that it was before, which I don't like at all.  My solution is to use Parental Control on my router to limit access to one short period per day, and then use local control to apply tariff settings that I need to accomplish my goals, which are of using solar for both home load and battery charging in the morning (one behavior) and then also later also discharging battery to home load for peak TOU time in the evening so all available solar can go to the grid to run my meter backwards (the other behavior).  It is sadly impossible to get both of these behaviors together in one setting, so I use Home Assistant to switch at some point during the day.  If they only added a switch to charge only from excess solar (after powering the home load) all of this would not be necessary.
 
 Below is a partial transcript of my conversation with Enphase AI Assistant:
 
@@ -173,7 +173,7 @@ Enphase Assistant:
 
 This is a critical finding! I found the answer to what changed on June 17th.
 
-What Changed: Your system was migrated from Gateway*sourced battery schedules to Cloud*sourced battery schedules.
+What Changed: Your system was migrated from Gateway-sourced battery schedules to Cloud-sourced battery schedules.
 
 Why Your Tariff Settings Got Corrupted: According to Enphase documentation:
 
@@ -183,9 +183,9 @@ This explains exactly what you experienced:
 
     You were using the local /admin/lib/tariff REST API to create custom tariff configurations
 
-    On June 17th, your system was switched to Cloud*sourced schedules
+    On June 17th, your system was switched to Cloud-sourced schedules
 
-    Once Cloud*sourced, the system began automatically "correcting" (overwriting) your custom local tariff settings
+    Once Cloud-sourced, the system began automatically "correcting" (overwriting) your custom local tariff settings
 
     That's why enabling parental controls worked it prevented the Gateway from syncing with the cloud and overwriting your settings
 
@@ -201,25 +201,25 @@ Your Options Going Forward: According to Enphase, battery tariff settings must n
 
 Unfortunately, this means your current automation approach using the local /admin/lib/tariff endpoint is no longer supported on your system.
 
-Recommendation: Contact Enphase support and ask them to help you set up your self*consumption and peak*time battery behaviors using one of the supported methods above, since the local REST API approach is no longer compatible with Cloud*sourced schedules.
+Recommendation: Contact Enphase support and ask them to help you set up your self-consumption and peak-time battery behaviors using one of the supported methods above, since the local REST API approach is no longer compatible with Cloud-sourced schedules.
 
 Would you like me to help you connect with a support agent to discuss alternative solutions?
 
-- *me: Is it possible to revert to "Gateway*sourced battery schedules"?*
+- *me: Is it possible to revert to "Gateway-sourced battery schedules"?*
 
 Enphase Assistant:
 
-Based on the documentation I found, it does not appear to be possible to revert to Gateway*sourced battery schedules.
+Based on the documentation I found, it does not appear to be possible to revert to Gateway-sourced battery schedules.
 
-What Happened: Enphase implemented a company*wide transition throughout Q2 2026 (which includes June 17th) to migrate all systems from Gateway*sourced schedules to Cloud*sourced schedules. Your system was transitioned as part of this rollout.
+What Happened: Enphase implemented a company-wide transition throughout Q2 2026 (which includes June 17th) to migrate all systems from Gateway-sourced schedules to Cloud-sourced schedules. Your system was transitioned as part of this rollout.
 
 Key Points:
 
-    This is a permanent, system*wide migration not a per*system configuration
+    This is a permanent, system-wide migration not a per-system configuration
 
     The documentation states: "Once a system's schedule is sourced from the Enlighten Cloud, battery tariff settings can no longer be configured by triggering REST tasks to /admin/lib/tariff"
 
-    There is no documented way to revert back to Gateway*sourced schedules
+    There is no documented way to revert back to Gateway-sourced schedules
 
 However: I don't have explicit documentation stating that reversion is impossible. It's possible that:
 
@@ -231,9 +231,9 @@ However: I don't have explicit documentation stating that reversion is impossibl
 
 My Recommendation: Contact Enphase support and specifically ask:
 
-    Is it possible to revert your system to Gateway*sourced schedules?
+    Is it possible to revert your system to Gateway-sourced schedules?
 
-    If not, what are your options for automating the battery behavior switching you need (self*consumption vs. peak discharge)?
+    If not, what are your options for automating the battery behavior switching you need (self-consumption vs. peak discharge)?
 
 They may be able to help you find a supported solution that achieves your automation goals, or they may be able to discuss whether an exception is possible given your use case.
 
@@ -245,7 +245,7 @@ Enphase Assistant:
 
 I need to be transparent with you: the information I referenced came from the internal search results of the Enphase knowledge base, which doesn't have a direct public URL I can share with you.
 
-Specifically, the key information about the Q2 2026 transition to Cloud*sourced schedules came from the knowledge base's synthesized answer, not from a specific public support article.
+Specifically, the key information about the Q2 2026 transition to Cloud-sourced schedules came from the knowledge base's synthesized answer, not from a specific public support article.
 
 What the internal documentation stated:
 
@@ -259,7 +259,7 @@ However: I don't have a direct public support article URL to point you to for th
 
 My Recommendation: Contact Enphase support directly and ask them for:
 
-    Documentation about the transition from Gateway*sourced to Cloud*sourced battery schedules
+    Documentation about the transition from Gateway-sourced to Cloud-sourced battery schedules
 
     Whether this transition can be reverted
 
@@ -273,31 +273,31 @@ Would you like me to help you connect with a support agent?
 
 Enphase Assistant:
 
-That's a completely legitimate concern, and you're not alone in feeling this way. Many homeowners prefer local control over their systems rather than relying on cloud connectivity and cloud*based decision*making.
+That's a completely legitimate concern, and you're not alone in feeling this way. Many homeowners prefer local control over their systems rather than relying on cloud connectivity and cloud-based decision-making.
 
 Your Current Situation:
 
-    Enphase has mandatorily migrated your system to Cloud*sourced battery schedules
+    Enphase has mandatorily migrated your system to Cloud-sourced battery schedules
 
     This prevents you from using your local /admin/lib/tariff REST API approach
 
-    Your workaround (parental controls) keeps your system local, but it's not an ideal long*term solution
+    Your workaround (parental controls) keeps your system local, but it's not an ideal long-term solution
 
     You're essentially forced to choose between cloud control or limiting your Gateway's connectivity
 
 What You Should Do: I strongly recommend contacting Enphase support and explicitly stating:
 
-    You do not want cloud*dependent control of your battery system
+    You do not want cloud-dependent control of your battery system
 
-    You prefer local Gateway*sourced scheduling
+    You prefer local Gateway-sourced scheduling
 
-    You want to know if there are options to opt*out of Cloud*sourced schedules or revert to Gateway*sourced control
+    You want to know if there are options to opt-out of Cloud-sourced schedules or revert to Gateway*sourced control
 
     This is important feedback about your system preferences
 
 Why This Matters: Customer feedback about cloud dependency concerns is valuable to Enphase's product team. If enough customers express this preference, it can influence product decisions and feature options.
 
-Important: This is a conversation worth having directly with Enphase support rather than working around it with parental controls. They need to understand that there's demand for local*only control options.
+Important: This is a conversation worth having directly with Enphase support rather than working around it with parental controls. They need to understand that there's demand for local-only control options.
 
 Would you like me to help you connect with a support agent to discuss this concern directly?
 
@@ -311,15 +311,15 @@ Your conversation and site details will be shared with the agent, so you won't n
 
 Summary:
 
-    On June 17th, 2026, your system was migrated from Gateway*sourced to Cloud*sourced battery schedules
+    On June 17th, 2026, your system was migrated from Gateway-sourced to Cloud-sourced battery schedules
 
-    This migration prevented you from using your local /admin/lib/tariff REST API to automate battery behavior switching (self*consumption vs. peak discharge)
+    This migration prevented you from using your local /admin/lib/tariff REST API to automate battery behavior switching (self-consumption vs. peak discharge)
 
     You enabled parental controls as a workaround to prevent cloud sync from corrupting your custom tariff settings
 
-    You prefer local control over your home systems and do not want cloud*dependent control of your battery, HVAC, or solar
+    You prefer local control over your home systems and do not want cloud-dependent control of your battery, HVAC, or solar
 
-    You want to discuss options for reverting to Gateway*sourced schedules or opting out of Cloud*sourced control
+    You want to discuss options for reverting to Gateway-sourced schedules or opting out of Cloud-sourced control
 
 The agent will have full context and can help you explore your options for local control of your system.
 
