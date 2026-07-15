@@ -260,9 +260,12 @@ operator stack: grouping paren (
 operand stack: (AST for) identifier a
 
 input: plus sign +
-3: binary addition operator: reduce until precedence of addition is higher than that on the operator stack
-   note that the search of the operator stack (backward, i.e. from top of stack) for possible reductions is halted by the presence of the (
-   this means that any operators further toward the bottom of the stack are precluded from reduction at this point, even if they are higher precedence than +
+3: since we're in binary state we see this as binary addition operator:
+   reduce until precedence of addition is higher than that on the operator stack
+   note that the search of the operator stack (backward, i.e. from top of stack)
+     for possible reductions is halted by the presence of the (
+   this means that any operators further toward the bottom of the stack are precluded from reduction at this point,
+      even if they are higher precedence than binary +
    push operator binary addition onto the operator stack
    switch to unary state
 
@@ -279,8 +282,10 @@ operand stack: AST for a, AST for b
 
 input: close paren )
 5: reduce operators until matching )
-   here that means popping the + and two operands off the stacks, while creating an AST for a+b
-   otherwise, do nothing more with the ), and also pop the matching ( off the operator stack
+   here that means popping the binary + and two operands off the stacks,
+     while creating an AST for a+b
+   otherwise, do nothing more with the closing ) 
+   pop the matching ( off the operator stack
    push the AST for a+b onto the operand stack
    stay in binary state
 
@@ -289,7 +294,9 @@ operator stack: empty
 operand stack: AST for a+b
 
 input: asterik token *
-6: reduce until higher precedence than * (nothing to do as the operator stack is empty)
+6: again in binary state, so is binary multiplication
+   reduce until higher precedence than binary *
+   (nothing to do as the operator stack is empty)
    push binary multiplication onto the operator stack
    switch to unary state
 
@@ -307,7 +314,9 @@ operand stack: AST for a+b, AST for identifier f
 
 input: open paren (
 8: seeing ( in the binary state means this is function application
-   reduce operators (on the operator stack) that are higher precedence than function application (here, there are none)
+      [whereas seeing ( in the unary state means grouping parenthesis]
+   reduce operators (on the operator stack) that are higher precedence than function application
+     (here, there are none)
    push function call ( onto the operator stack
    switch to unary state
 
@@ -344,15 +353,18 @@ input: close paren )
 12: reduce until matching (
     we construct a comma operator tree for c,d
     the matching ( is a function call '(', which means that
-    we convert all top-level ',' operators into argument separator, which are later handled differently than regular ',' operator
-        this doesn't necessarily have to be done here but I choose to differentiate in generated AST between the two ',' meanings
+    we convert all top-level ',' operators into argument separator,
+      which are later handled differently than regular ',' operator
+      -- this doesn't necessarily have to be done here
+         but I choose to differentiate in generated AST between the two ',' meanings
+           (parameter separation and regular , operator separating ordinary expressions)
     and we convert the function call '(' operator into a function call operator (pop & push)
         (unlike with a grouping paren, which would be removed)
     stay in binary state
 
 state: binary
 operator stack: binary multiplication *, function call operator
-operand stack: AST for a+b, AST for identifier f, AST for parameter expression c,d
+operand stack: AST for a+b, AST for identifier f, AST for application operation (i.e. call of) parameter expression c,d
 
 input: <eof> (end of file/input)    
 13: end of parse (eof not recognized so not consumed)
